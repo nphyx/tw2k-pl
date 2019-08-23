@@ -5,7 +5,7 @@ good trade pairs, trade routes, and does all kinds of other nifty logical reason
 
 It also makes fancy maps, like this one:
 
-[example map](https://github.com/nphyx/tw2k-pl/blob/master/example_map.svg)
+[example map](https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_map.svg?sanitize=true)
 
 Requires
 --------
