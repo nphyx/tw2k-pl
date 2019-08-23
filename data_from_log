@@ -1,0 +1,41 @@
+#!/bin/bash
+mkdir -p ./tmp_data
+out=$(ansi2txt < ~/bbs.log | ./parse_log.awk)
+tmp_dir=./tmp_data
+data_dir=./data
+port_orig=$data_dir/ports.csv
+port_tmp=$tmp_dir/ports.csv
+sector_orig=$data_dir/sectors.csv
+sector_tmp=$tmp_dir/sectors.csv
+planet_orig=$data_dir/planets.csv
+planet_tmp=$tmp_dir/planets.csv
+
+# pull ports out of initial parser output
+ports=$(echo "$out" | awk '/^PORT_RECORD.*/ { gsub(/PORT_RECORD: ?/, "", $0); print }')
+cp $port_orig $port_tmp
+echo "$ports" >> $port_tmp
+echo "$(head -n 1 $port_tmp && tail -n +2 $port_tmp | sort -i -u)" > $port_tmp
+echo "FOUND PORTS"
+echo "=========================="
+echo "$ports"
+
+# pull sectors out of initial parser output
+sectors=$(echo "$out" | awk '/^SECTOR_RECORD.*/ { gsub(/SECTOR_RECORD: ?/, "", $0); print }')
+cp $sector_orig $sector_tmp
+echo "$sectors" >> $sector_tmp
+echo "$(head -n 1 $sector_tmp && tail -n +2 $sector_tmp | sort -i -u)" > $sector_tmp
+echo " "
+echo "FOUND SECTORS"
+echo "=========================="
+echo "$sectors"
+
+# pull planets out of initial parser output
+# uses a different parser for planets specifically
+out=$(ansi2txt < ~/bbs.log | ./parse_planets.awk)
+planets=$(echo "$out" | awk '/^PLANET_RECORD.*/ { gsub(/PLANET_RECORD: ?/, "", $0); print }')
+cp $planet_orig $planet_tmp
+echo "$planets" >> $planet_tmp
+echo "$(head -n 1 $planet_tmp && tail -n +2 $planet_tmp | sort -i -u)" > $planet_tmp
+echo "FOUND PLANETS"
+echo "=========================="
+echo "$planets"
