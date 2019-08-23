@@ -10,6 +10,16 @@ Requires
 - Graphviz
 - Some Prolog packages, maybe? install them if it complains
 
+Setup
+-----
+1) Copy data_examples/ to data/:
+```sh
+$ cp -r data_examples data
+```
+
+2) Fill in as much data s you have in the appropriate CSVs.
+3) Use how you like (see [Usage](#usage))
+
 About Data
 ----------
 tw2k.pl reads its data from extremely simple CSVs. Check the examples in data_examples/.
