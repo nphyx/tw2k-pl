@@ -1,0 +1,6 @@
+#!/bin/bash
+mkdir -p maps
+echo "Mapping Sectors..."
+swipl -s map_sectors.pl
+echo "Generating SVG..."
+neato -Tsvg -o maps/sectors.svg maps/sectors.dot
