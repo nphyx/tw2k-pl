@@ -46,3 +46,7 @@ $ swipl -s tw2k.pl
 ```
 
 See the source code for documentation.
+
+License
+-------
+WTFPL 2.0
