@@ -8,6 +8,8 @@ It also makes fancy maps, like this one:
 [example map](https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_map.svg?sanitize=true)
 <img src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_map.svg?sanitize=true">
 
+Maybe sometime I'll put a legend in there, but hopefully you can figure it out in the meanwhile.
+
 Requires
 --------
 - SWI-Prolog
