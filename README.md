@@ -1,6 +1,6 @@
 TW2K Prolog DB
 ==============
-A program that reads CSV files of data dumped from TW2K and generates maps
+A program that reads CSV files of data dumped from TradeWars2002 and generates maps
 and reports from it.
 
 Requires
