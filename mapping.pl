@@ -135,9 +135,9 @@ sector_style(Id, Style):-
 	hub(Id), Style = 'filled, bold';
 	Style = 'filled'.
 
-writes_style(Id, Pairs):-
+writes_style(Id, Pairs, WithLabel):-
 	sector_color(Id, Pairs, Color),
-	sector_label(Id, Label),
+	(WithLabel, sector_label(Id, Label); Label = "(secret)"),
 	sector_shape(Id, Shape),
 	sector_style(Id, Style),
 	font(Id, Font),
@@ -147,7 +147,7 @@ writes_style(Id, Pairs):-
 		[Id, Shape, Label, Color, Font, Size, Style]),
 	writes(S).
 
-map_sectors():- 
+map_sectors_main(WithLabel):- 
 	findall((A,B), connected(A, B), Edges),
 	sort(Edges, SortEdge),
 	dedupe(SortEdge, Deduped),
@@ -160,7 +160,11 @@ map_sectors():-
 	writes(['node [shape=circle fontcolor="#ffffff" fontsize=10 style=filled
 	color="#eeeeee" margin="-0.5,-0.5" regular=true];']),
 	writes(['edge [color="#bbbbbb" fontsize=10 fontname="Fira Sans Bold" fontcolor="#88ee88"];']),
-	forall(member(Id, SortConn), writes_style(Id, Pairs)),
+	forall(member(Id, SortConn), writes_style(Id, Pairs, WithLabel)),
 	forall(member(E, Deduped), writes_edge(E, Pairs)),
 	writes(['}']),
 	told.
+
+map_sectors:- map_sectors_main(true).
+
+map_sectors_hidden:- map_sectors_main(false).
