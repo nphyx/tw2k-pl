@@ -15,7 +15,7 @@ Maybe sometime I'll put a legend in there, but hopefully you can figure it out i
 Requires
 --------
 - SWI-Prolog
-- Input data (you're on your own - see [Importing Data](#importing))
+- Input data (you're on your own - see [Importing Data](#importing-data))
 - Graphviz
 - Some Prolog packages, maybe? install them if it complains
 
@@ -26,7 +26,7 @@ Setup
 $ cp -r example_data data
 ```
 
-2) Fill in as much data s you have in the appropriate CSVs.
+2) Fill in as much data s you have in the appropriate CSVs - see [About Data](#about-data).
 3) Optionally, build the executable:
 ```
 $ ./build.sh
