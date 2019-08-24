@@ -8,9 +8,12 @@ print_route_row(R, Holds):-
 	%           PortA         ProductA       PortB          ProductB       Profit           RT             PPH
 	format('| ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~1f~7+~t~| | ~|~w~5+~t~| | ~|~1f~7+~t~| |\n', [A, ProductA, B, ProductB, Profit, RoundTrip, ProfitPerHop]).
 
+print_route_foot():- writef('|=======================================================================|\n').
+
 print_route_head():-
-	format('| ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~7+~t~| | ~|~w~5+~t~| | ~|~w~7+~t~| |\n', ['A', 'ProductA', 'B', 'ProductB', 'Profit', 'Hops', 'PerHop']),
-	writef('|---------------------+---------------------+---------+-------+---------|\n').
+	writef('\nKnown Trade Routes\n'),
+	print_route_foot(),
+	format('| ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~7+~t~| | ~|~w~5+~t~| | ~|~w~7+~t~| |\n', ['A', 'ProductA', 'B', 'ProductB', 'Profit', 'Hops', 'PerHop']).
 
 % prints all routes between two ports with paired buys/sells, sorted by profit per hop,
 % profit multiplied by Holds.
@@ -19,15 +22,13 @@ print_route_head():-
 print_routes(Holds):-
 	sorted_trade_routes(Sorted),
 	print_route_head(),
-	forall(member(P, Sorted), print_route_row(P, Holds)).
+	(forall(member(P, Sorted), print_route_row(P, Holds)); true),
+	print_route_foot().
 
 % prints all routes between two ports with paired buys/sells, sorted by profit per hop.
 % VERY, VERY SLOW.
 % print_routes().
-print_routes():-
-	sorted_trade_routes(Sorted),
-	print_route_head(),
-	forall(member(P, Sorted), print_route_row(P, 1)).
+print_routes():- print_routes(1).
 
 pair_row_fmt(F):- F = '| ~|~w~5+~t~| | ~|~w~5+~t~| | ~|~w~11+~t~| | ~|~w~11+~t~| |\n'.
 
@@ -41,7 +42,7 @@ print_pairs_head():-
 	writef('\nKnown Trade Pairs\n'),
 	print_pairs_foot(),
 	format(F, ['A', 'B', 'ProductA', 'ProductB']),
-	writef('|---------------------+---------------------|\n').
+	writef('|-------|-------|-------------|-------------|\n').
 
 print_pairs_foot():-
 	writef('=============================================\n').

@@ -74,7 +74,7 @@ echo "$regions"
 # pull planets out of initial parser output
 # uses a different parser for planets specifically
 out=$(ansi2txt < ~/bbs.log | ./parse_planets.awk)
-planets=$(echo "$out" | awk '/^PLANET_RECORD.*/ { gsub(/PLANET_RECORD: ?/, "", $0); print }')
+planets=$(echo "$out" | awk '/^PLANET_RECORD.*/ { gsub(/PLANET_RECORD: ?/, "", $0); print }' | sort | uniq)
 cp $planet_orig $planet_tmp
 echo "$planets" >> $planet_tmp
 echo "$(head -n 1 $planet_tmp && tail -n +2 $planet_tmp | sort -i -u)" > $planet_tmp
@@ -82,3 +82,6 @@ echo " "
 echo "FOUND PLANETS"
 echo "=========================="
 echo "$planets"
+
+# stub
+touch $tmp_dir/trades.csv

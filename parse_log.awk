@@ -1,5 +1,17 @@
 #!/usr/bin/gawk -f
-/^Sector/{
+/^Sector [[:digit:]]+ has warps to sector/{
+	ORS=""
+	sector = $2
+	printf("SECTOR_RECORD: %.3d, ",sector)
+	ORS=", ";
+	for(i=8;i<NF;i+=2) {
+		gsub(/(\(|\))/,"")
+		print $i
+	}
+	ORS="\n";
+	print $NF;
+}
+/^Sector  : [[:digit:]]+ in/{
 	gsub(/\.$/,"");
 	ORS=""
 	print "REGION_RECORD: "

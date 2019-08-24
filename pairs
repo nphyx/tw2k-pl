@@ -1,2 +1,0 @@
-#!/bin/bash
-swipl -s trade_pairs.pl

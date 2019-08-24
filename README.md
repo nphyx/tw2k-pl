@@ -27,7 +27,13 @@ $ cp -r data_examples data
 ```
 
 2) Fill in as much data s you have in the appropriate CSVs.
-3) Use how you like (see [Usage](#usage))
+3) Optionally, build the executable:
+```
+$ ./build.sh
+```
+4) Use how you like (see [Usage](#usage))
+
+If you don't build an executable, you can run as a script with `swipl -s tw2k.pl -g main [options]`
 
 About Data
 ----------
@@ -43,15 +49,50 @@ Note that for ports, class 0 and 9 port buys/sells will be ignored for the purpo
 Usage
 -----
 ```sh
-$ swipl -s map_sectors.pl #generates maps/sectors.dot, a graphviz dot file
-$ ./map #generates an svg map, and places it in the maps/ directory as sectors.svg
-$ ./pairs #generates a list of known trade pairs
+tw2k [options]
+
+Examples:
+tw2k --map normal -R neato #render a map of sectors using neato
+tw2k --report pairs #print a report of known trade pairs
+
+Options:
+--help      -h  boolean=_              print help
+--graph     -g  atom=_                 generate a sector graph and build a dot from it
+                                         - see Map and Graph modes
+--map       -m  atom=_                 generate a graph and build an svg map from it
+                                         - imples --graph
+                                         - requires graphviz installed on your system
+                                         - see Map and Graph modes
+--output    -o  atom=maps/sectors.dot  set output graphviz dot file (used with --graph and --map)
+--image     -i  atom=maps/sectors.svg  set output image file (used with --graph and --map)
+--renderer  -R  atom=sfdp              set graphviz image renderer to use
+                                         - used with --map
+                                         - best options are neato, fdp, and sfdp; try your luck with the others
+--report    -r  atom=_                 print a report, modes:
+                                           pairs:  print pairs of adjacent ports with matching trades
+                                           routes: print all trade routes - ports with matching trades at any distance
+                                                   sorted by profit-per-hop per unit (see holds)
+--holds         integer=1              when used with reporting, multiply per-unit value by number of holds
+--data-dir  -d  term=_                 set the directory to load data from
+
+Map and Graph Options:
+  normal: a graph with color-coded points of interest
+  region: a graph colored by region membership
+  secret: a graph with all the labels hidden, for showing off without sharing
 ```
 
 You can also use it interactively. There are a bunch of useful functions in there
 that don't have equivalent shell scripts.
 ```sh
 $ swipl -s tw2k.pl
+```
+
+Examples:
+```prolog
+?- import_db. % you'll want to do this to load up your data first
+?- port_sells(fuel).
+?- go_path(1, 999, Path, Hops). % use dijkstra to calculate shortest path between sectors 1 and 2
+?- halt.
 ```
 
 See the source code for documentation.

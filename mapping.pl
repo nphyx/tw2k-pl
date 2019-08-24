@@ -10,7 +10,9 @@ writes('$empty_list'):-!,write([]).
 writes(A):-write(A).	% catch-all
 
 region_color(RegionName, Color):-
-	RegionName = 'uncharted space', Color = "#8822aa";
+	RegionName = 'uncharted space', Color = "#662299";
+	RegionName = 'The Ferrengi Empire', Color = "#ff2222";
+	RegionName = 'The Federation', Color = "#fff688";
 	findall(Region, region(Region, _), Regions),
 	nth1(Index, Regions, RegionName),
 	(
@@ -25,7 +27,9 @@ region_color(RegionName, Color):-
 	).
 
 region_bg(RegionName, Color):-
-	RegionName = 'uncharted space', Color = "#110033";
+	RegionName = 'uncharted space', Color = "#181026";
+	RegionName = 'The Ferrengi Empire', Color = "#661111";
+	RegionName = 'The Federation', Color = "#443e11";
 	findall(Region, region(Region, _), Regions),
 	nth1(Index, Regions, RegionName),
 	(
@@ -72,22 +76,23 @@ line_type(P, Pairs, Lanes, L):-
 	UnchartedA = not(mapped(A)),
 	UnchartedB = not(mapped(B)),
 	Unidirectional = unidirectional(A, B),
-	SameRegion = (region_of(A, Region), region_of(B, Region), not(Region = unknown)),
+	SameRegion = (region_of(A, Region), region_of(B, Region), not(Region = unknown), not(Region = 'uncharted space')),
 	Nearby = (abs((A - B)) < 10),
 	( % preferred line lengths, inches
 		(UnchartedA; UnchartedB), Len = "0.25";
 		SameRegion, Len = "0.5";
-		Nearby, Len = "3.0";
 		(SpaceLane; TradePair), Len = "5.0";
+		Unidirectional, Len = "30.0";
+		Nearby, Len = "3.0";
 		Len = "10.0"
 	),
 	( % weight, how strongly we want to emphasize length preference
 		SameRegion, Weight = "100";
 		(UnchartedA; UnchartedB), Weight = "9"; % cluster uncharted sectors very near
-		Nearby, Weight = "4"; % tend to cluster sectors with similar numbers together
 		SpaceLane, Weight = "3";
 		TradePair, Weight = "2";
-		Unidirectional, Weight = "1";
+		Unidirectional, Weight = "3";
+	  Nearby, Weight = "4"; % tend to cluster sectors with similar numbers together
 		Weight = "2"
 	),
 	(
@@ -95,7 +100,8 @@ line_type(P, Pairs, Lanes, L):-
 		SpaceLane, Color = "#8888bb";
 		(long_return(A,B)), Color = "#bb8888";
 		(long_return(A,B)), Head = "#bb8888";
-		Color = "#bbbbbb"
+		region_of(A, Region), region_color(Region, Color);
+		Color = "#aaaaaa"
 	),
 	(
 		TradePair, Head = "diamond";
@@ -169,7 +175,7 @@ sector_color_by_region(Id, C):-
 sector_border(Id, C):-
 	region_of(Id, Region),
 	region_color(Region, C);
-	C = "#cccccc".
+	C = "#aaaaaa".
 
 sector_shape(Id, S):-
 	(Id = 1, S = 'tripleoctagon');
@@ -195,8 +201,11 @@ sector_style(Id, Style):-
 	hub(Id), Style = 'filled, bold';
 	Style = 'filled'.
 
-writes_style(Id, Pairs, WithLabel):-
-	sector_color(Id, Pairs, Color),
+writes_style(Id, Pairs, WithLabel, ColorMode):-
+	(
+		ColorMode = normal, sector_color(Id, Pairs, Color);
+		ColorMode = regions, sector_color_by_region(Id, Color)
+	),
 	(WithLabel, sector_label(Id, Label); Label = "(secret)"),
 	sector_shape(Id, Shape),
 	sector_style(Id, Style),
@@ -208,7 +217,7 @@ writes_style(Id, Pairs, WithLabel):-
 		[Id, Shape, Label, Color, Font, Size, Style, Border]),
 	writes(S).
 
-map_sectors_main(WithLabel):- 
+map_sectors(FName, WithLabels, ColorMode):- 
 	findall((A,B), connected(A, B), Edges),
 	sort(Edges, SortEdge),
 	dedupe(SortEdge, Deduped),
@@ -216,17 +225,19 @@ map_sectors_main(WithLabel):-
 	trade_pairs(Pairs),
 	space_lanes(Lanes),
 	sort(Connected, SortConn),
-	tell('maps/sectors.dot'),
+	tell(FName),
 	writes(['digraph {']),
 	writes(['graph [overlap=false fontname="Fira Sans Bold" splines=true bgcolor="#111111" pack=200 packmode="node"]']),
 	writes(['node [shape=circle fontname="Fira Sans Bold" fontcolor="#ffffff" fontsize=10 style=filled
 	color="#eeeeee" margin="-0.5,-0.5" regular=true];']),
 	writes(['edge [color="#bbbbbb" fontsize=10 fontname="Fira Sans Bold" fontcolor="#88ee88"];']),
-	forall(member(Id, SortConn), writes_style(Id, Pairs, WithLabel)),
+	forall(member(Id, SortConn), writes_style(Id, Pairs, WithLabels, ColorMode)),
 	forall(member(E, Deduped), writes_edge(E, Pairs, Lanes)),
 	writes(['}']),
 	told.
 
-map_sectors:- map_sectors_main(true).
+map_sectors(Fname, WithLabels):- map_sectors(Fname, WithLabels, normal).
 
-map_sectors_hidden:- map_sectors_main(false).
+map_sectors(FName):- map_sectors(FName, true, normal).
+
+map_sectors_hidden(FName):- map_sectors(FName, false, regions).
