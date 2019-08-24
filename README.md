@@ -15,9 +15,11 @@ Maybe sometime I'll put a legend in there, but hopefully you can figure it out i
 Requires
 --------
 - SWI-Prolog
-- Input data (you're on your own - see [Importing Data](#importing-data))
 - Graphviz
-- Some Prolog packages, maybe? install them if it complains
+- ansi2txt utility for log parsing (often found in a package called kbtin)
+- awk, sort, uniq, and other standard *nix utils for log parsing (you are on something *nixy, aren't you?)
+- Input data (you're on your own - see [Importing Data](#importing-data))
+- Some Prolog packages, maybe? install them if it complains (`pack_install(<missing package>)` while in swipl) 
 
 Setup
 -----
