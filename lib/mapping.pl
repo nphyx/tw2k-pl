@@ -77,22 +77,19 @@ line_type(P, Pairs, Lanes, L):-
 	UnchartedB = not(mapped(B)),
 	Unidirectional = unidirectional(A, B),
 	SameRegion = (region_of(A, Region), region_of(B, Region), not(Region = unknown), not(Region = 'uncharted space')),
-	Nearby = (abs((A - B)) < 10),
 	( % preferred line lengths, inches
-		(UnchartedA; UnchartedB), Len = "0.25";
-		SameRegion, Len = "0.5";
-		(SpaceLane; TradePair), Len = "5.0";
-		Unidirectional, Len = "30.0";
-		Nearby, Len = "3.0";
+		(UnchartedA; UnchartedB), Len = "0.05";
+		SameRegion, Len = "1.0";
+		(SpaceLane; TradePair), Len = "2.0";
+		Unidirectional, Len = "5.0";
 		Len = "10.0"
 	),
 	( % weight, how strongly we want to emphasize length preference
+		Unidirectional, Weight = "3";
 		SameRegion, Weight = "100";
 		(UnchartedA; UnchartedB), Weight = "9"; % cluster uncharted sectors very near
 		SpaceLane, Weight = "3";
 		TradePair, Weight = "2";
-		Unidirectional, Weight = "3";
-	  Nearby, Weight = "4"; % tend to cluster sectors with similar numbers together
 		Weight = "2"
 	),
 	(
@@ -150,7 +147,7 @@ line_type(P, Pairs, Lanes, L):-
 writes_edge(E, Pairs, Lanes):-
 	line_type(E, Pairs, Lanes, L),
 	E = (A,B),
-	writes(['"', A, '" -> "', B, '"', L, ';\n']).
+	writes(['"', A, '" -> "', B, '" ', L, ';\n']).
 
 sector_color(Id, Pairs, C):-
 	(not(mapped(Id)), C = "#111111");
@@ -184,18 +181,20 @@ sector_shape(Id, S):-
 	(has_port(Id), planet(Id, _, _, _, Owner), not(Owner = unknown), S = 'invhouse');
 	(planet(Id, _, _, _, Owner), not(Owner = unknown), S = 'house');
 	(has_port(Id), S = 'Mdiamond');
+	(has_planet(Id), S = 'doublecircle'),
 	(not(mapped(Id)), S = 'plaintext');
 	S = 'circle'.
 
 font(Id, F):-
 	(not(mapped(Id)), F = 'Fira Sans Bold');
 	(is_empty(Id), F = 'Fira Sans Bold');
-	F = 'Fira Sans'.
+	F = 'Fira Sans Light'.
 
 font_size(Id, S):-
+	has_port(Id), S = '10';
 	not(mapped(Id)), S = '8';
-	is_empty(Id), S = '10';
-	S = '12'.
+	is_empty(Id), S = '9';
+	S = '10'.
 
 sector_style(Id, Style):-
 	hub(Id), Style = 'filled, bold';
@@ -207,32 +206,59 @@ writes_style(Id, Pairs, WithLabel, ColorMode):-
 		ColorMode = regions, sector_color_by_region(Id, Color)
 	),
 	(WithLabel, sector_label(Id, Label); Label = "(secret)"),
+	(
+		has_port(Id), W = "1.25", H = "1.25";
+		has_planet(Id), W = "0.5", H = "0.5";
+		is_empty(Id), W = "0.35", H = "0.35";
+		not(mapped(Id)), W = "0.15", H = "0.15";
+		W = "0.25", H = "0.25"
+	),
 	sector_shape(Id, Shape),
 	sector_style(Id, Style),
 	sector_border(Id, Border),
 	font(Id, Font),
 	font_size(Id, Size),
 	swritef(S,
-		'%w [shape="%w" label="%w" fillcolor="%w" fontname="%w" fontsize="%w" style="%w" color="%w"]\n',
-		[Id, Shape, Label, Color, Font, Size, Style, Border]),
+		'%w [shape="%w" label="%w" fillcolor="%w" fontname="%w" fontsize="%w" style="%w" color="%w" fixedsize=true width="%w" height="%w"]\n',
+		[Id, Shape, Label, Color, Font, Size, Style, Border, W, H]),
 	writes(S).
+
+planet_color(Class, Color):-
+	Class = 'M', Color="#558f6f"; % garden
+	Class = 'K', Color="#888055"; % desert
+	Class = 'O', Color="#555577"; % oceanic
+	Class = 'L', Color="#6f6860"; % mountainous
+	Class = 'C', Color="#5f5f8a"; % glacial
+	Class = 'H', Color="#6f5555"; % volcanic
+	Class = 'U', Color="#507f7f"; % gaseous
+	Color = "#111111".
+
+writes_planet(Planet, WithLabel):-
+	planet(SectorId, Class, _, Name, _) = Planet,
+	planet_color(Class, Color),
+	(WithLabel, swritef(Label, "%w\n(%w)", [Name, Class]); Label = "(secret)"),
+	swritef(P, '"%w" [shape=circle fontsize=4 fixedsize=true width="0.25" height="0.25" sep=0 margin="0,0" fillcolor="%w" color="%w" fontcolor="#eeeeee" fontname="Fira Sans" label="%w"];\n', [Name, Color, Color, Label]),
+	swritef(Edge, '"%w" -> "%w" [style=tapered dir=forward arrowhead=none arrowtail=none len="0.0" weight="10000" penwidth=4 color="%w"];\n', [Name, SectorId, Color]),
+	writes([P, Edge]).
 
 map_sectors(FName, WithLabels, ColorMode):- 
 	findall((A,B), connected(A, B), Edges),
 	sort(Edges, SortEdge),
 	dedupe(SortEdge, Deduped),
 	findall((A), has_connect(A), Connected),
+	findall(planet(SectorId, Class, Level, Name, Owner), planet(SectorId, Class, Level, Name, Owner), Planets),
 	trade_pairs(Pairs),
 	space_lanes(Lanes),
 	sort(Connected, SortConn),
 	tell(FName),
 	writes(['digraph {']),
 	writes(['graph [overlap=false fontname="Fira Sans Bold" splines=true bgcolor="#111111" pack=200 packmode="node"]']),
-	writes(['node [shape=circle fontname="Fira Sans Bold" fontcolor="#ffffff" fontsize=10 style=filled
-	color="#eeeeee" margin="-0.5,-0.5" regular=true];']),
+	writes(['node [shape=circle fontname="Fira Sans Bold" fontcolor="#ffffff" fontsize=10 style=filled width=0 height=0 sep="+2.0"
+	color="#eeeeee" regular=true];']),
 	writes(['edge [color="#bbbbbb" fontsize=10 fontname="Fira Sans Bold" fontcolor="#88ee88"];']),
 	forall(member(Id, SortConn), writes_style(Id, Pairs, WithLabels, ColorMode)),
 	forall(member(E, Deduped), writes_edge(E, Pairs, Lanes)),
+	forall(member(Planet, Planets), writes_planet(Planet, WithLabels)),
 	writes(['}']),
 	told.
 
