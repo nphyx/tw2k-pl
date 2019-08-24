@@ -9,6 +9,36 @@ writes(?-A):-!,write('?-'),writes(A).
 writes('$empty_list'):-!,write([]).
 writes(A):-write(A).	% catch-all
 
+region_color(RegionName, Color):-
+	RegionName = 'uncharted space', Color = "#8822aa";
+	findall(Region, region(Region, _), Regions),
+	nth1(Index, Regions, RegionName),
+	(
+		0 is Index mod 8, Color = "#ffcccc";
+		1 is Index mod 8, Color = "#ccffcc";
+		2 is Index mod 8, Color = "#ccccff";
+		3 is Index mod 8, Color = "#ffffcc";
+		4 is Index mod 8, Color = "#ccffff";
+		5 is Index mod 8, Color = "#ffccff";
+		6 is Index mod 8, Color = "#cccccc";
+		7 is Index mod 8, Color = "#ffffff"
+	).
+
+region_bg(RegionName, Color):-
+	RegionName = 'uncharted space', Color = "#110033";
+	findall(Region, region(Region, _), Regions),
+	nth1(Index, Regions, RegionName),
+	(
+		0 is Index mod 8, Color = "#331111";
+		1 is Index mod 8, Color = "#113311";
+		2 is Index mod 8, Color = "#111133";
+		3 is Index mod 8, Color = "#333311";
+		4 is Index mod 8, Color = "#113333";
+		5 is Index mod 8, Color = "#331133";
+		6 is Index mod 8, Color = "#111111";
+		7 is Index mod 8, Color = "#333333"
+	).
+
 buy_sell(T, S):-
 	T = b, S = 'B';
 	T = s, S = 'S'.
@@ -35,34 +65,52 @@ is_pair_member(A, B, Pairs):-
 	member(pair_trade(A, B, _, _), Pairs);
 	member(pair_trade(B, A, _, _), Pairs).
 
-line_type(P, Pairs, L):-
+line_type(P, Pairs, Lanes, L):-
 	P = (A, B),
-	(
-		is_pair_member(A, B, Pairs), Len = "0.5";
-		not(mapped(A)), Len = "0.25";
-		not(mapped(B)), Len = "0.25";
-		Len = "1.0"
+	TradePair = is_pair_member(A, B, Pairs),
+	SpaceLane = on_any_path(A, B, Lanes),
+	UnchartedA = not(mapped(A)),
+	UnchartedB = not(mapped(B)),
+	Unidirectional = unidirectional(A, B),
+	SameRegion = (region_of(A, Region), region_of(B, Region), not(Region = unknown)),
+	Nearby = (abs((A - B)) < 10),
+	( % preferred line lengths, inches
+		(UnchartedA; UnchartedB), Len = "0.25";
+		SameRegion, Len = "0.5";
+		Nearby, Len = "3.0";
+		(SpaceLane; TradePair), Len = "5.0";
+		Len = "10.0"
+	),
+	( % weight, how strongly we want to emphasize length preference
+		SameRegion, Weight = "100";
+		(UnchartedA; UnchartedB), Weight = "9"; % cluster uncharted sectors very near
+		Nearby, Weight = "4"; % tend to cluster sectors with similar numbers together
+		SpaceLane, Weight = "3";
+		TradePair, Weight = "2";
+		Unidirectional, Weight = "1";
+		Weight = "2"
 	),
 	(
-		is_pair_member(A, B, Pairs), Color = "#88bb88";
+		TradePair, Color = "#88bb88";
+		SpaceLane, Color = "#8888bb";
 		(long_return(A,B)), Color = "#bb8888";
 		(long_return(A,B)), Head = "#bb8888";
 		Color = "#bbbbbb"
 	),
 	(
-		is_pair_member(A, B, Pairs), Head = "diamond";
-		not(mapped(B)), Head = "odot";
-		not(mapped(A)), Head = "none";
-		(unidirectional(A, B), link_from_to(A, B)), Head = "curve";
-		(unidirectional(A, B), link_from_to(B, A)), Head = "icurve";
+		TradePair, Head = "diamond";
+		UnchartedB, Head = "odot";
+		UnchartedA, Head = "none";
+		(Unidirectional, link_from_to(A, B)), Head = "curve";
+		(Unidirectional, link_from_to(B, A)), Head = "icurve";
 		Head = "none"
 	),
 	(
-		is_pair_member(A, B, Pairs), Tail = "diamond";
-		not(mapped(A)), Tail = "odot";
-		not(mapped(B)), Tail = "none";
-		(unidirectional(A, B), link_from_to(A, B)), Tail = "icurve";
-		(unidirectional(A, B), link_from_to(B, A)), Tail = "curve";
+		TradePair, Tail = "diamond";
+		UnchartedA, Tail = "odot";
+		UnchartedB, Tail = "none";
+		(Unidirectional, link_from_to(A, B)), Tail = "icurve";
+		(Unidirectional, link_from_to(B, A)), Tail = "curve";
 		Tail = "none"
 	),
 	(
@@ -77,23 +125,26 @@ line_type(P, Pairs, L):-
 		Label = ''
 	),
 	(
-		not(mapped(A)), Style = "dotted";
-		not(mapped(B)), Style = "dotted";
-		unidirectional(A, B), Style = "dashed";
-		is_pair_member(A, B, Pairs), Style = "bold";
+		(UnchartedA; UnchartedB), Style = "dotted";
+		Unidirectional, Style = "dashed";
 		Style = "solid"
 	),
 	(
+		SpaceLane, Pen = "3";
+		TradePair, Pen = "2";
+		Pen = "1"
+	),
+	(
 		swritef(L,
-			'[len="%w" label="%w" dir="both" arrowhead="%w" arrowtail="%w" style="%w" color="%w"]',
-			[Len, Label, Head, Tail, Style, Color]
+			'[len="%w" label="%w" dir="both" arrowhead="%w" arrowtail="%w" style="%w" color="%w" penwidth="%w" weight="%w"]',
+			[Len, Label, Head, Tail, Style, Color, Pen, Weight]
 		)
 	).
 
-writes_edge(E, Pairs):-
-	line_type(E, Pairs, L),
+writes_edge(E, Pairs, Lanes):-
+	line_type(E, Pairs, Lanes, L),
 	E = (A,B),
-	writes(['"', A, '" -> "', B, '"', L, ';']).
+	writes(['"', A, '" -> "', B, '"', L, ';\n']).
 
 sector_color(Id, Pairs, C):-
 	(not(mapped(Id)), C = "#111111");
@@ -107,9 +158,18 @@ sector_color(Id, Pairs, C):-
 	(Id = 1, C = '#aa9955');
 	(port(Id, _, 0, _, _, _), C = '#556655');
 	(port(Id, _, 9, _, _, _), C = '#555566');
-	(Id < 11, C = '#441144');
 	(planet(Id, _, _, _, Owner), not(Owner = unknown), C = '#333377');
 	C = '#222222'.
+
+sector_color_by_region(Id, C):-
+	(not(mapped(Id)), C = "#111111");
+	region_of(Id, Region), region_bg(Region, C);
+	C = '#222222'.
+
+sector_border(Id, C):-
+	region_of(Id, Region),
+	region_color(Region, C);
+	C = "#cccccc".
 
 sector_shape(Id, S):-
 	(Id = 1, S = 'tripleoctagon');
@@ -140,11 +200,12 @@ writes_style(Id, Pairs, WithLabel):-
 	(WithLabel, sector_label(Id, Label); Label = "(secret)"),
 	sector_shape(Id, Shape),
 	sector_style(Id, Style),
+	sector_border(Id, Border),
 	font(Id, Font),
 	font_size(Id, Size),
 	swritef(S,
-		'%w [shape="%w" label="%w" fillcolor="%w" fontname="%w" fontsize="%w" style="%w"]',
-		[Id, Shape, Label, Color, Font, Size, Style]),
+		'%w [shape="%w" label="%w" fillcolor="%w" fontname="%w" fontsize="%w" style="%w" color="%w"]\n',
+		[Id, Shape, Label, Color, Font, Size, Style, Border]),
 	writes(S).
 
 map_sectors_main(WithLabel):- 
@@ -153,15 +214,16 @@ map_sectors_main(WithLabel):-
 	dedupe(SortEdge, Deduped),
 	findall((A), has_connect(A), Connected),
 	trade_pairs(Pairs),
+	space_lanes(Lanes),
 	sort(Connected, SortConn),
 	tell('maps/sectors.dot'),
 	writes(['digraph {']),
-	writes(['graph [overlap=false splines=true bgcolor="#111111" pack=200 packmode="node"]']),
-	writes(['node [shape=circle fontcolor="#ffffff" fontsize=10 style=filled
+	writes(['graph [overlap=false fontname="Fira Sans Bold" splines=true bgcolor="#111111" pack=200 packmode="node"]']),
+	writes(['node [shape=circle fontname="Fira Sans Bold" fontcolor="#ffffff" fontsize=10 style=filled
 	color="#eeeeee" margin="-0.5,-0.5" regular=true];']),
 	writes(['edge [color="#bbbbbb" fontsize=10 fontname="Fira Sans Bold" fontcolor="#88ee88"];']),
 	forall(member(Id, SortConn), writes_style(Id, Pairs, WithLabel)),
-	forall(member(E, Deduped), writes_edge(E, Pairs)),
+	forall(member(E, Deduped), writes_edge(E, Pairs, Lanes)),
 	writes(['}']),
 	told.
 

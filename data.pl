@@ -145,6 +145,27 @@ trade_route(Pair):-
 trade_routes(Pairs):-
 	findall(Pair, trade_route(Pair), Pairs).
 
+% find major space lanes (routes between class 0 / class 9 ports).
+% space_lane(+Lane).
+space_lane(Lane):-
+	(port_class(A, 0); port_class(A, 9)),
+	(port_class(B, 0); port_class(B, 9)),
+	go_path(A, B, Lane, _).
+
+% list of all space lanes
+% space_lanes(+Lanes).
+space_lanes(Lanes):-
+	findall(Lane, space_lane(Lane), Lanes).
+
+% true if a connection between two points is adjacent in a path.
+% on_path(-A, -B, -Path).
+on_path(A, B, Path):- adjacent(A, B, Path); adjacent(B, A, Path).
+
+% true if a connection between two points is adjacent on any of a list of paths.
+% on_any_path(-A, -B, -Path).
+on_any_path(A, B, Paths):-
+	once((member(Path, Paths), on_path(A, B, Path))).
+
 % finds trade routes and sorts by ProfitPerHop, descending.
 % sorted_trade_routes(+Sorted<List<pair_route>>).
 sorted_trade_routes(Sorted):-
