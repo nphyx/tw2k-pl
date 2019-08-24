@@ -181,7 +181,7 @@ sector_shape(Id, S):-
 	(has_port(Id), planet(Id, _, _, _, Owner), not(Owner = unknown), S = 'invhouse');
 	(planet(Id, _, _, _, Owner), not(Owner = unknown), S = 'house');
 	(has_port(Id), S = 'Mdiamond');
-	(has_planet(Id), S = 'doublecircle'),
+	(has_planet(Id), S = 'doublecircle');
 	(not(mapped(Id)), S = 'plaintext');
 	S = 'circle'.
 
