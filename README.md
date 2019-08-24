@@ -15,15 +15,15 @@ Maybe sometime I'll put a legend in there, but hopefully you can figure it out i
 Requires
 --------
 - SWI-Prolog
-- Input data (you're on your own - see data_examples)
+- Input data (you're on your own - see [Importing Data](#importing))
 - Graphviz
 - Some Prolog packages, maybe? install them if it complains
 
 Setup
 -----
-1) Copy data_examples/ to data/:
+1) Copy example_data/ to data/:
 ```sh
-$ cp -r data_examples data
+$ cp -r example_data data
 ```
 
 2) Fill in as much data s you have in the appropriate CSVs.
@@ -45,6 +45,30 @@ tw2k.pl reads its data from extremely simple CSVs. Check the examples in data_ex
 - trades.csv - a log of individual trades, used for calculating the profitability of a trade pair or route 
 
 Note that for ports, class 0 and 9 port buys/sells will be ignored for the purposes of trading, but are still useful for mapping.
+
+Importing Data
+--------------
+There's a very early, very janky build of a log parser at `data_from_log`. Run at your own risk. It expects to find your logs at `~/bbs.log`,
+and will handle stripping ansi codes.
+
+If you're using SyncTerm to connect to your BBS, you should be able to begin logging by setting Log Level to 'debug', then start logging with `Alt+C`.
+If you're using some other ansi terminal I can't help you, just put your logs at `~/bbs.log` and hopefully something works.
+
+It (usually) knows how to parse:
+
+- Ports, Sector warp links, planets, and region names from sector display (`D` in a sector), also from HoloScans (`S`, `H`, if you have a HoloScanner)
+- Sector warp links from computer reports (`C`, `I`, `<sector id>`)
+
+It cannot parse:
+- Planet class and ownership from planet scans (yet)
+- Trade reports (you'll have to do that manually for now)
+- Any other stuff that might be useful
+
+The parser will put output in `tmp_data`, so as not to stomp on your existing data. You can merge or copy it manually if you're happy with it.
+
+Known issue: Sol will create an entry like, `1, Sol, 0, s, p, e, c, i, a, l`, which causes bugs. Delete it from `tmp_data/ports.csv`. I'll fix it later.
+
+Beatings will continue until parser improves.
 
 Usage
 -----
@@ -96,6 +120,14 @@ Examples:
 ```
 
 See the source code for documentation.
+
+Developer Notes
+---------------
+I am pretty crappy at both prolog and awk, which drive this whole thing (project was mainly an excuse to spend some time with both).
+Pull requests are welcome if you know a better way to do anything in here, or if you'd like to contribute something cool - new reports,
+map modes, etc. Just please test them against some data first.
+
+P.S. Does anybody play TradeWars anymore? Haha! I'm on bbs.lunduke.com as 'Nphyx'.
 
 License
 -------
