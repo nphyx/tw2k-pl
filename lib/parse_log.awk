@@ -38,10 +38,16 @@
 	#FS=" :,";
 	ORS=" ";
 	printf("PORT_RECORD: %.3d, ",sector)
-	if($(NF-1) == "(Special)") { # special handling for stardock
+	if($(NF-1) == "(Special)") { # special handling for StarDock
 		for(i=3;i<NF-3;i++) { last = i; print $i }
 		ORS=","
 		print $(NF-2)
+		ORS="\n"
+		print " s, s, s"
+	} else if($(NF) == "(Special)") { # special handling for Sol
+		for(i=3;i<NF-2;i++) { last = i; print $i }
+		ORS=","
+		print $(NF-1)
 		ORS="\n"
 		print " s, s, s"
 	} else {

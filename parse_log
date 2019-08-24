@@ -1,6 +1,6 @@
 #!/bin/bash
 mkdir -p ./tmp_data
-out=$(ansi2txt < ~/bbs.log | ./parse_log.awk)
+out=$(ansi2txt < ~/bbs.log | ./lib/parse_log.awk)
 tmp_dir=./tmp_data
 data_dir=./data
 port_orig=$data_dir/ports.csv
@@ -16,7 +16,7 @@ region_tmp=$tmp_dir/regions.csv
 ports=$(echo "$out" | awk '/^PORT_RECORD.*/ { gsub(/PORT_RECORD: ?/, "", $0); print }')
 cp $port_orig $port_tmp
 echo "$ports" >> $port_tmp
-echo "$(head -n 1 $port_tmp && tail -n +2 $port_tmp | sort -i -u)" > $port_tmp
+echo "$(head -n 1 $port_tmp && tail -n +2 $port_tmp | sort | uniq)" > $port_tmp
 echo " "
 echo "FOUND PORTS"
 echo "=========================="
@@ -26,7 +26,7 @@ echo "$ports"
 sectors=$(echo "$out" | awk '/^SECTOR_RECORD.*/ { gsub(/SECTOR_RECORD: ?/, "", $0); print }')
 cp $sector_orig $sector_tmp
 echo "$sectors" >> $sector_tmp
-echo "$(head -n 1 $sector_tmp && tail -n +2 $sector_tmp | sort -i -u)" > $sector_tmp
+echo "$(head -n 1 $sector_tmp && tail -n +2 $sector_tmp | sort | uniq)" > $sector_tmp
 echo " "
 echo "FOUND SECTORS"
 echo "=========================="
@@ -64,7 +64,7 @@ regions=$(cat $tmp_dir/tmp | awk '{ gsub(/^[[:space:]]*/, "", $0); gsub(/[[:spac
 			print "\n"
 		}
 	}' | awk '{ gsub(/^, ?/, "", $0); gsub(/,$/, "", $0); print $0 }')
-echo "$(head -n 1 $region_orig && echo "$regions" | sort -i -u)" > $region_tmp
+echo "$(head -n 1 $region_orig && echo "$regions" | sort | uniq)" > $region_tmp
 rm $tmp_dir/tmp
 echo " "
 echo "FOUND REGIONS"
@@ -73,11 +73,11 @@ echo "$regions"
 
 # pull planets out of initial parser output
 # uses a different parser for planets specifically
-out=$(ansi2txt < ~/bbs.log | ./parse_planets.awk)
+out=$(ansi2txt < ~/bbs.log | ./lib/parse_planets.awk)
 planets=$(echo "$out" | awk '/^PLANET_RECORD.*/ { gsub(/PLANET_RECORD: ?/, "", $0); print }' | sort | uniq)
 cp $planet_orig $planet_tmp
 echo "$planets" >> $planet_tmp
-echo "$(head -n 1 $planet_tmp && tail -n +2 $planet_tmp | sort -i -u)" > $planet_tmp
+echo "$(head -n 1 $planet_tmp && tail -n +2 $planet_tmp | sort | uniq)" > $planet_tmp
 echo " "
 echo "FOUND PLANETS"
 echo "=========================="

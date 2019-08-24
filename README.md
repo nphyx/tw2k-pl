@@ -5,8 +5,8 @@ good trade pairs, trade routes, and does all kinds of other nifty logical reason
 
 It also makes fancy maps, like these:
 
-<img src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_map.svg?sanitize=true" width="40%" height="auto">
-<img src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_secret_map.svg?sanitize=true" width="40%" height="auto">
+<img src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_maps/example_map.svg?sanitize=true" width="40%" height="auto">
+<img src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_maps/example_secret_map.svg?sanitize=true" width="40%" height="auto">
 
 (second one has all its sector info hidden so I don't give up too much of my own intel)
 
@@ -67,8 +67,6 @@ It cannot parse:
 - Any other stuff that might be useful
 
 The parser will put output in `tmp_data`, so as not to stomp on your existing data. You can merge or copy it manually if you're happy with it.
-
-Known issue: Sol will create an entry like, `1, Sol, 0, s, p, e, c, i, a, l`, which causes bugs. Delete it from `tmp_data/ports.csv`. I'll fix it later.
 
 Beatings will continue until parser improves.
 

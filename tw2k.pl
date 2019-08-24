@@ -1,11 +1,11 @@
 % TW2K: a utility program for TradeWars 2002
 ?- use_module(library(optparse)).
-:- [dynamics].
-:- [util].
-:- [storage].
-:- [data].
-:- [reports].
-:- [mapping].
+:- [lib/dynamics].
+:- [lib/util].
+:- [lib/storage].
+:- [lib/data].
+:- [lib/reports].
+:- [lib/mapping].
 
 main:-
 	(
