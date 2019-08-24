@@ -42,9 +42,29 @@ main:-
 				help(['set output image file (used with --graph and --map)'])
 			],
 			[
+				opt(colors), type(atom), default('normal'),
+				shortflags(['C']), longflags(['colors']),
+				help(['color mode for maps and graphs, <normal|regions>'])
+			],
+			[
+				opt(labels), type(boolean), default(true),
+				shortflags(['l']), longflags(['labels']),
+				help(['label sectors'])
+			],
+			[
+				opt(hops), type(integer), default(3),
+				shortflags(['H']), longflags(['hops']),
+				help(['hop limit for local maps'])
+			],
+			[
+				opt(origin), type(integer), default(1),
+				shortflags(['O']), longflags(['origin']),
+				help(['origin for local maps'])
+			],
+			[
 				opt(gvcmd), type(atom), default('sfdp'),
 				shortflags(['R']), longflags(['renderer']),
-				help(['set graphviz image renderer to use',
+				help(['graphviz image renderer to use',
 					'- used with --map',
 					'- best options are neato, fdp, and sfdp; try your luck with the others'
 				])
@@ -74,6 +94,8 @@ main:-
 			( % map mode
 				member(data_dir(Data), Args),
 				(member(map(Map), Args), not(var(Map))),
+				member(labels(Labels), Args),
+				member(colors(Colors), Args),
 				member(output(O), Args),
 				member(image(I), Args),
 				member(gvcmd(GvCmd), Args),
@@ -83,9 +105,13 @@ main:-
 				writef('Generating graph...\n'),
 				(
 					(
-						Map = normal, map_sectors(O);
-						Map = secret, map_sectors_hidden(O);
-						Map = region, map_sectors(O, true, regions)
+						Map = normal, map_sectors(O, Labels, Colors);
+						(
+							Map = local,
+							member(hops(Hops), Args),
+							member(origin(Origin), Args),
+							map_local(O, Origin, Hops, Labels, Colors)
+						)
 					),
 					writef('Generating image...\n'), shell(Cmd), halt
 				)
@@ -93,13 +119,22 @@ main:-
 			( % graph mode
 				member(data_dir(Data), Args),
 				(member(graph(Graph), Args), not(var(Graph))),
+				member(labels(Labels), Args),
+				member(colors(Colors), Args),
 				(member(output(O), Args); O = 'data/sectors.dot'),
 				format('Generating graph at ~w, mode: ~w\n', [O, Graph]),
 				import_db(Data),
+				writef('Generating graph...\n'),
 				(
-					Graph = normal, map_sectors(O);
-					Graph = secret, map_sectors_hidden(O);
-					Graph = region, map_sectors(0, true, regions)
+					(
+						Graph = normal, map_sectors(O, Labels, Colors);
+						(
+							Graph = local,
+							member(hops(Hops), Args),
+							member(origin(Origin), Args),
+							map_local(O, Origin, Hops, Labels, Colors)
+						)
+					)
 				),
 				halt
 			);
@@ -134,9 +169,9 @@ main:-
 				format('tw2k --report pairs #print a report of known trade pairs~n'),
 				format('~nOptions:~n'),
 				format('~w\n', [HelpText]),
-				format('Map and Graph Options:~n~w~n~w~n~w~n', [
+				format('Map and Graph Modes:~n~w~n~w~n~w~n', [
 					'  normal: a graph with color-coded points of interest',
-					'  region: a graph colored by region membership',
+					'  local:  only render sectors within a number of hops of an origin sector (see --hops, --origin)',
 					'  secret: a graph with all the labels hidden, for showing off without sharing'
 				]),
 				halt

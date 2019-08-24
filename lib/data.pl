@@ -162,12 +162,12 @@ space_lanes(Lanes):-
 on_path(A, B, Path):- adjacent(A, B, Path); adjacent(B, A, Path).
 
 % true if a connection between two points is adjacent on any of a list of paths.
-% on_any_path(-A, -B, -Path).
+% on_any_path(+A, +B, -Path).
 on_any_path(A, B, Paths):-
 	once((member(Path, Paths), on_path(A, B, Path))).
 
 % finds trade routes and sorts by ProfitPerHop, descending.
-% sorted_trade_routes(+Sorted<List<pair_route>>).
+% sorted_trade_routes(-Sorted<List<pair_route>>).
 sorted_trade_routes(Sorted):-
 	trade_routes(Pairs),
 	sort(7, @>, Pairs, Sorted).
@@ -176,21 +176,34 @@ connected(A, B):- edge(A, B, _); edge(B, A, _).
 has_connect(A):- connected(A, _).
 
 % true if a sector with Id has a sector map entry
-% mapped(-SectorId).
+% mapped(+SectorId).
 mapped(Id):- sector(Id, _).
 
+% List of all sectors within Hops distance from Id.
+% within_hops(+Id, +Hops, -List).
+within_hops(_, 0, []).
+within_hops(Id, 1, List):- sector(Id, List); List = [].
+within_hops(Id, Hops, List):-
+	sector(Id, Links),
+	NextHops is Hops - 1,
+	(NextHops > 0),
+	findall(Within, (member(LinkId, Links), within_hops(LinkId, NextHops, Within)), Withins),
+	flatten(Withins, FlatList),
+	sort([Id|FlatList], List);
+	List = [].
+
 % true if a sector has a port with at least one recorded trade.
-% has_trade(-Id).
+% has_trade(+Id).
 has_trade(Id):- trade(Id, _, _, _, _).
 
 % true if sectors A and B are adjacent and link to each other.
-% bidirectional(-A<SectorId>, -B<SectorId>).
+% bidirectional(+A<SectorId>, +B<SectorId>).
 bidirectional(A, B):-
 	sector(A, LA), member(B, LA);
 	sector(B, LB), member(B, LB).
 
 % true if A has an outbound link to B.
-% link_from_to(-A, -B).
+% link_from_to(+A, +B).
 link_from_to(A, B):-
 	sector(A, LA),
 	member(B, LA).

@@ -5,8 +5,8 @@ good trade pairs, trade routes, and does all kinds of other nifty logical reason
 
 It also makes fancy maps, like these:
 
-<img src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_maps/example_map.svg?sanitize=true" width="40%" height="auto">
-<img src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_maps/example_secret_map.svg?sanitize=true" width="40%" height="auto">
+<img style="display:inline;" src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_maps/example_map.svg?sanitize=true" width="40%" height="auto">
+<img style="display:inline;" src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_maps/example_secret_map.svg?sanitize=true" width="40%" height="auto">
 
 (second one has all its sector info hidden so I don't give up too much of my own intel)
 
@@ -89,7 +89,11 @@ Options:
                                          - see Map and Graph modes
 --output    -o  atom=maps/sectors.dot  set output graphviz dot file (used with --graph and --map)
 --image     -i  atom=maps/sectors.svg  set output image file (used with --graph and --map)
---renderer  -R  atom=sfdp              set graphviz image renderer to use
+--colors    -C  atom=normal            color mode for maps and graphs, <normal|regions>
+--labels    -l  boolean=true           label sectors
+--hops      -H  integer=3              hop limit for local maps
+--origin    -O  integer=1              origin for local maps
+--renderer  -R  atom=sfdp              graphviz image renderer to use
                                          - used with --map
                                          - best options are neato, fdp, and sfdp; try your luck with the others
 --report    -r  atom=_                 print a report, modes:
@@ -97,11 +101,11 @@ Options:
                                            routes: print all trade routes - ports with matching trades at any distance
                                                    sorted by profit-per-hop per unit (see holds)
 --holds         integer=1              when used with reporting, multiply per-unit value by number of holds
---data-dir  -d  term=_                 set the directory to load data from
+--data-dir  -d  atom=data              set the directory to load data from
 
-Map and Graph Options:
+Map and Graph Modes:
   normal: a graph with color-coded points of interest
-  region: a graph colored by region membership
+  local:  only render sectors within a number of hops of an origin sector (see --hops, --origin)
   secret: a graph with all the labels hidden, for showing off without sharing
 ```
 

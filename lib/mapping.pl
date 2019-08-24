@@ -69,12 +69,12 @@ is_pair_member(A, B, Pairs):-
 	member(pair_trade(A, B, _, _), Pairs);
 	member(pair_trade(B, A, _, _), Pairs).
 
-line_type(P, Pairs, Lanes, L):-
+line_type(P, Pairs, Lanes, SectorList, L):-
 	P = (A, B),
 	TradePair = is_pair_member(A, B, Pairs),
 	SpaceLane = on_any_path(A, B, Lanes),
-	UnchartedA = not(mapped(A)),
-	UnchartedB = not(mapped(B)),
+	UnchartedA = not(member(A, SectorList)),
+	UnchartedB = not(member(B, SectorList)),
 	Unidirectional = unidirectional(A, B),
 	SameRegion = (region_of(A, Region), region_of(B, Region), not(Region = unknown), not(Region = 'uncharted space')),
 	( % preferred line lengths, inches
@@ -144,8 +144,8 @@ line_type(P, Pairs, Lanes, L):-
 		)
 	).
 
-writes_edge(E, Pairs, Lanes):-
-	line_type(E, Pairs, Lanes, L),
+writes_edge(E, Pairs, Lanes, SectorList):-
+	line_type(E, Pairs, Lanes, SectorList, L),
 	E = (A,B),
 	writes(['"', A, '" -> "', B, '" ', L, ';\n']).
 
@@ -203,9 +203,10 @@ sector_style(Id, Style):-
 writes_style(Id, Pairs, WithLabel, ColorMode):-
 	(
 		ColorMode = normal, sector_color(Id, Pairs, Color);
-		ColorMode = regions, sector_color_by_region(Id, Color)
+		ColorMode = regions, sector_color_by_region(Id, Color);
+		Color = "#111111"
 	),
-	(WithLabel, sector_label(Id, Label); Label = "(secret)"),
+	(WithLabel, sector_label(Id, Label); Label = ""),
 	(
 		has_port(Id), W = "1.25", H = "1.25";
 		has_planet(Id), W = "0.5", H = "0.5";
@@ -236,12 +237,13 @@ planet_color(Class, Color):-
 writes_planet(Planet, WithLabel):-
 	planet(SectorId, Class, _, Name, _) = Planet,
 	planet_color(Class, Color),
-	(WithLabel, swritef(Label, "%w\n(%w)", [Name, Class]); Label = "(secret)"),
+	(WithLabel, swritef(Label, "%w\n(%w)", [Name, Class]); Label = ""),
 	swritef(P, '"%w" [shape=circle fontsize=4 fixedsize=true width="0.25" height="0.25" sep=0 margin="0,0" fillcolor="%w" color="%w" fontcolor="#eeeeee" fontname="Fira Sans" label="%w"];\n', [Name, Color, Color, Label]),
 	swritef(Edge, '"%w" -> "%w" [style=tapered dir=forward arrowhead=none arrowtail=none len="0.0" weight="10000" penwidth=4 color="%w"];\n', [Name, SectorId, Color]),
 	writes([P, Edge]).
 
 map_sectors(FName, WithLabels, ColorMode):- 
+	findall(Id, sector(Id, _), SectorList),
 	findall((A,B), connected(A, B), Edges),
 	sort(Edges, SortEdge),
 	dedupe(SortEdge, Deduped),
@@ -257,7 +259,7 @@ map_sectors(FName, WithLabels, ColorMode):-
 	color="#eeeeee" regular=true];']),
 	writes(['edge [color="#bbbbbb" fontsize=10 fontname="Fira Sans Bold" fontcolor="#88ee88"];']),
 	forall(member(Id, SortConn), writes_style(Id, Pairs, WithLabels, ColorMode)),
-	forall(member(E, Deduped), writes_edge(E, Pairs, Lanes)),
+	forall(member(E, Deduped), writes_edge(E, Pairs, Lanes, SectorList)),
 	forall(member(Planet, Planets), writes_planet(Planet, WithLabels)),
 	writes(['}']),
 	told.
@@ -267,3 +269,27 @@ map_sectors(Fname, WithLabels):- map_sectors(Fname, WithLabels, normal).
 map_sectors(FName):- map_sectors(FName, true, normal).
 
 map_sectors_hidden(FName):- map_sectors(FName, false, regions).
+
+map_local(FName, Origin, Hops, WithLabels, ColorMode):- 
+	writef("Limiting to origin %w within hops %w\n", [Origin, Hops]),
+	within_hops(Origin, Hops, SectorList),
+	findall((A,B), ((member(A, SectorList); member(B, SectorList)), connected(A, B)), Edges),
+	sort(Edges, SortEdge),
+	dedupe(SortEdge, Deduped),
+	findall(planet(SectorId, Class, Level, Name, Owner), (member(SectorId, SectorList), planet(SectorId, Class, Level, Name, Owner)), Planets),
+	trade_pairs(Pairs),
+	space_lanes(Lanes),
+	tell(FName),
+	writes(['digraph {']),
+	writes(['graph [overlap=false fontname="Fira Sans Bold" splines=true bgcolor="#111111" pack=200 packmode="node"]']),
+	writes(['node [shape=plaintext fontname="Fira Sans Bold" fontcolor="#eeeeee" fillcolor="#111111" fontsize=10 style=filled width=0 height=0 sep="+2.0"
+	color="#eeeeee" regular=true];']),
+	writes(['edge [color="#bbbbbb" fontsize=10 fontname="Fira Sans Bold" fontcolor="#88ee88"];']),
+	forall(member(Id, SectorList), writes_style(Id, Pairs, WithLabels, ColorMode)),
+	forall(member(E, Deduped), writes_edge(E, Pairs, Lanes, SectorList)),
+	forall(member(Planet, Planets), writes_planet(Planet, WithLabels)),
+	writes(['}']),
+	told.
+
+map_local(FName, Origin, Hops, WithLabels):- map_local(FName, Origin, Hops, WithLabels, normal).
+map_local(FName, Origin, Hops):- map_local(FName, Origin, Hops, true).
