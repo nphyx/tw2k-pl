@@ -9,10 +9,12 @@ writes(?-A):-!,write('?-'),writes(A).
 writes('$empty_list'):-!,write([]).
 writes(A):-write(A).	% catch-all
 
+region_color(RegionName, Color):- RegionName = 'uncharted space' -> Color = "#662299".
+region_color(RegionName, Color):- RegionName = 'The Ferrengi Empire' -> Color = "#ff2222".
+region_color(RegionName, Color):- RegionName = 'The Federation' -> Color = "#fff688".
+region_color(RegionName, Color):- RegionName = unknown -> Color = "#cccccc".
 region_color(RegionName, Color):-
-	RegionName = 'uncharted space', Color = "#662299";
-	RegionName = 'The Ferrengi Empire', Color = "#ff2222";
-	RegionName = 'The Federation', Color = "#fff688";
+	not(member(RegionName, ['uncharted space', 'The Ferrengi Empire', 'The Federation', unknown])),
 	findall(Region, region(Region, _), Regions),
 	nth1(Index, Regions, RegionName),
 	(
@@ -57,7 +59,7 @@ sector_label(Id, S):-
 	buy_sell(O, Os),
 	buy_sell(E, Es),
 	class_label(Class, Cs),
-	swritef(S, '%w\n%w\n%w%w%w\n(%w)', [Id, Name, Fs, Os, Es, Cs]);
+	swritef(S, '%w\\\\n%w\\\\n%w%w%w\\\\n(%w)', [Id, Name, Fs, Os, Es, Cs]);
 	S = Id.
 
 product_tag(Product, Tag):-
@@ -69,86 +71,79 @@ is_pair_member(A, B, Pairs):-
 	member(pair_trade(A, B, _, _), Pairs);
 	member(pair_trade(B, A, _, _), Pairs).
 
-line_type(P, Pairs, Lanes, SectorList, L):-
-	P = (A, B),
-	TradePair = is_pair_member(A, B, Pairs),
-	SpaceLane = on_any_path(A, B, Lanes),
-	UnchartedA = not(member(A, SectorList)),
-	UnchartedB = not(member(B, SectorList)),
-	Unidirectional = unidirectional(A, B),
-	SameRegion = (region_of(A, Region), region_of(B, Region), not(Region = unknown), not(Region = 'uncharted space')),
-	( % preferred line lengths, inches
-		(UnchartedA; UnchartedB), Len = "0.05";
-		SameRegion, Len = "1.0";
-		(SpaceLane; TradePair), Len = "2.0";
-		Unidirectional, Len = "5.0";
-		Len = "10.0"
-	),
-	( % weight, how strongly we want to emphasize length preference
-		Unidirectional, Weight = "3";
-		SameRegion, Weight = "100";
-		(UnchartedA; UnchartedB), Weight = "9"; % cluster uncharted sectors very near
-		SpaceLane, Weight = "3";
-		TradePair, Weight = "2";
-		Weight = "2"
-	),
-	(
-		TradePair, Color = "#88bb88";
-		SpaceLane, Color = "#8888bb";
-		(long_return(A,B)), Color = "#bb8888";
-		(long_return(A,B)), Head = "#bb8888";
-		region_of(A, Region), region_color(Region, Color);
-		Color = "#aaaaaa"
-	),
-	(
-		TradePair, Head = "diamond";
-		UnchartedB, Head = "odot";
-		UnchartedA, Head = "none";
-		(Unidirectional, link_from_to(A, B)), Head = "curve";
-		(Unidirectional, link_from_to(B, A)), Head = "icurve";
-		Head = "none"
-	),
-	(
-		TradePair, Tail = "diamond";
-		UnchartedA, Tail = "odot";
-		UnchartedB, Tail = "none";
-		(Unidirectional, link_from_to(A, B)), Tail = "icurve";
-		(Unidirectional, link_from_to(B, A)), Tail = "curve";
-		Tail = "none"
-	),
-	(
-		member(pair_trade(A, B, Pa, Pb), Pairs),
-		product_tag(Pa, Ta),
-		product_tag(Pb, Tb),
-		swritef(Label, "%w : %w", [Ta, Tb]);
-		member(pair_trade(B, A, Pa, Pb), Pairs),
-		product_tag(Pa, Ta),
-		product_tag(Pb, Tb),
-		swritef(Label, "%w : %w", [Ta, Tb]);
-		Label = ''
-	),
-	(
-		(UnchartedA; UnchartedB), Style = "dotted";
-		Unidirectional, Style = "dashed";
-		Style = "solid"
-	),
-	(
-		SpaceLane, Pen = "3";
-		TradePair, Pen = "2";
-		Pen = "1"
-	),
-	(
-		swritef(L,
-			'[len="%w" label="%w" dir="both" arrowhead="%w" arrowtail="%w" style="%w" color="%w" penwidth="%w" weight="%w"]',
-			[Len, Label, Head, Tail, Style, Color, Pen, Weight]
-		)
-	).
+writes_joined([]).
+writes_joined([H]):- writef(" %w ", [H]).
+writes_joined([H|T]):- writef(" %w", [H]), writes_joined(T).
 
-writes_edge(E, Pairs, Lanes, SectorList):-
-	line_type(E, Pairs, Lanes, SectorList, L),
-	E = (A,B),
-	writes(['"', A, '" -> "', B, '" ', L, ';\n']).
+writes_edge_links(_, []).
+writes_edge_links(SectorId, [SingleDest]):- writef("%w -> %w ", [SectorId, SingleDest]).
+writes_edge_links(SectorId, Destinations):-
+	length(Destinations, L), L > 1,
+	writef("%w -> {", [SectorId]), writes_joined(Destinations), writef('} ').
 
+writes_paired_edges(_, []).
+writes_paired_edges(SectorId, Destinations):-
+	writes_edge_links(SectorId, Destinations),
+	writef('[len="2.0" dir="both" arrowhead="diamond" arrowtail="diamond" style="dashed" color="#88bb88" penwidth="2" weight="3" tooltip="trade pair"];\n').
+
+writes_uncharted_edges(_, [], _).
+writes_uncharted_edges(SectorId, Destinations, Color):-
+	writes_edge_links(SectorId, Destinations),
+	writef('[len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="%w" penwidth="1" weight="10" tooltip="uncharted"];\n', [Color]).
+
+writes_space_lane_edges(_, [], _).
+writes_space_lane_edges(SectorId, Destinations, Color):-
+	writes_edge_links(SectorId, Destinations),
+	writef('[len="2.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#8888bb" penwidth="3" weight="3" tooltip="space lane"];\n', [Color]).
+
+writes_unidirectional_edges(_, [], _).
+writes_unidirectional_edges(SectorId, Destinations, Color):-
+	writes_edge_links(SectorId, Destinations),
+	writef('[len="5.0" label="" dir="both" arrowhead="curve" arrowtail="icurve" style="dashed" color="%w" penwidth="1" weight="3" tooltip="one way"];\n', [Color]).
+
+writes_unidirectional_lane_edges(_, [], _).
+writes_unidirectional_lane_edges(SectorId, Destinations, Color):-
+	writes_edge_links(SectorId, Destinations),
+	writef('[len="5.0" label="" dir="both" arrowhead="curve" arrowtail="icurve" style="dashed,bold" color="%w" penwidth="3" weight="3" tooltip="one way space lane"];\n', [Color]).
+
+
+writes_normal_edges(_, [], _).
+writes_normal_edges(SectorId, Destinations, Color):-
+	writes_edge_links(SectorId, Destinations),
+	writef('[len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="%w" penwidth="1" weight="2" tooltip="bidirectional link"];\n', [Color]).
+
+in_lane_list(Source, Dest, Lanes):- member(Lane, Lanes), on_path(Source, Dest, Lane).
+
+not_member(A, List):- not(member(A, List)).
+
+writes_sector_edges(SectorId, Pairs, Lanes):-
+	uncharted(SectorId) -> true;
+	sector(SectorId, Links) ->
+	region_of(SectorId, Region), region_color(Region, Color),
+
+	findall(Uc, (member(Uc, Links), uncharted(Uc)), UcSet), % set of uncharted links
+	findall(PDest, is_pair_member(SectorId, PDest, Pairs), PSet), % set of trade pair links
+	findall(LDest, in_lane_list(SectorId, LDest, Lanes), SLSet), % set of space lane links
+	findall(UDest, (unidirectional(SectorId, UDest), member(UDest, Links)), UDSet), % set of unidirectional links
+	findall(ICUni, (unidirectional(ICUni, SectorId)), ICUniSet), % incoming unidirectional links
+	intersection(SLSet, UDSet, UnidirectionalLanes),
+	flatten([UnidirectionalLanes, ICUniSet, PSet], SpecialSLs), % space lanes with special properties
+	subtract(SLSet, SpecialSLs, NormalSLs), % normal space lanes
+	subtract(UDSet, UnidirectionalLanes, Unidirectionals), % unidirectional links that aren't lanes
+	flatten([UDSet, SLSet, PSet, UcSet], Specials), % edges with any special attribute
+	subtract(Links, Specials, NormalSet), % edges with no special attributes
+	exclude(>(SectorId), NormalSet, Normals), % prevent double lines
+	exclude(>(SectorId), PSet, TradePairs), % prevent double lines
+	exclude(>(SectorId), NormalSLs, SpaceLanes), % prevent double lines
+
+	writes_uncharted_edges(SectorId, UcSet, Color),
+	writes_unidirectional_lane_edges(SectorId, UnidirectionalLanes, Color),
+	writes_unidirectional_edges(SectorId, Unidirectionals, Color),
+	writes_space_lane_edges(SectorId, SpaceLanes, Color),
+	writes_paired_edges(SectorId, TradePairs),
+	writes_normal_edges(SectorId, Normals, Color).
+
+% finds the background color for a sector in normal mode
 sector_color(Id, Pairs, C):-
 	(not(mapped(Id)), C = "#111111");
 	(pocket(Id), C = "#337777");
@@ -164,65 +159,73 @@ sector_color(Id, Pairs, C):-
 	(planet(Id, _, _, _, Owner), not(Owner = unknown), C = '#333377');
 	C = '#222222'.
 
+% finds the background color for a sector in regional mode
 sector_color_by_region(Id, C):-
 	(not(mapped(Id)), C = "#111111");
 	region_of(Id, Region), region_bg(Region, C);
 	C = '#222222'.
 
 sector_border(Id, C):-
-	region_of(Id, Region),
-	region_color(Region, C);
+	region_of(Id, Region), region_color(Region, C);
 	C = "#aaaaaa".
-
-sector_shape(Id, S):-
-	(Id = 1, S = 'tripleoctagon');
-	(port(Id, _, 0, _, _, _), S = 'doubleoctagon');
-	(port(Id, _, 9, _, _, _), S = 'octagon');
-	(has_port(Id), planet(Id, _, _, _, Owner), not(Owner = unknown), S = 'invhouse');
-	(planet(Id, _, _, _, Owner), not(Owner = unknown), S = 'house');
-	(has_port(Id), S = 'Mdiamond');
-	(has_planet(Id), S = 'doublecircle');
-	(not(mapped(Id)), S = 'plaintext');
-	S = 'circle'.
-
-font(Id, F):-
-	(not(mapped(Id)), F = 'Fira Sans Bold');
-	(is_empty(Id), F = 'Fira Sans Bold');
-	F = 'Fira Sans Light'.
-
-font_size(Id, S):-
-	has_port(Id), S = '10';
-	not(mapped(Id)), S = '8';
-	is_empty(Id), S = '9';
-	S = '10'.
 
 sector_style(Id, Style):-
 	hub(Id), Style = 'filled, bold';
 	Style = 'filled'.
 
-writes_style(Id, Pairs, WithLabel, ColorMode):-
+writes_uncharted_sector(Id, WithLabel):-
+	(WithLabel -> Label = Id; Label = ""),
+	writef(
+		'%w [shape=plaintext color="#111111" width="0.25" height="0.25" label="%w" tooltip="uncharted sector"];\n',
+		[Id, Label]
+	).
+
+writes_special_sector(Id, Label, Color, FillColor, Style, Shape):-
+	writef(
+		'%w [width="1.25" height = "1.25" label="%w" color="%w" fillcolor="%w" style="%w" shape="%w" tooltip="special spaceport"];',
+		[Id, Label, Color, FillColor, Style, Shape]
+	).
+
+writes_port_sector(Id, Label, Color, FillColor, Style):-
+	writef(
+		'%w [width="1.25" height = "1.25" label="%w" color="%w" fillcolor="%w" style="%w" shape="Mdiamond" tooltip="spaceport"];',
+		[Id, Label, Color, FillColor, Style]
+	).
+
+writes_planet_sector(Id, Label, Color, FillColor, Style):-
+	writef(
+		'%w [width="0.5" height = "0.5" label="%w" color="%w" fillcolor="%w" style="%w" shape="doublecircle" tooltip="planetary sector"];',
+		[Id, Label, Color, FillColor, Style]
+	).
+
+writes_empty_sector(Id, Label, Color, FillColor, Style):-
+	writef(
+		'%w [width="0.5" height = "0.5" label="%w" color="%w" fillcolor="%w" style="%w" shape="circle" tooltip="empty sector"];',
+		[Id, Label, Color, FillColor, Style]
+	).
+
+
+writes_sector(Id, Pairs, Lanes, WithLabel, ColorMode):-
+	uncharted(Id) -> writes_uncharted_sector(Id, WithLabel);
 	(
-		ColorMode = normal, sector_color(Id, Pairs, Color);
-		ColorMode = regions, sector_color_by_region(Id, Color);
+		ColorMode = normal, sector_color(Id, Pairs, FillColor);
+		ColorMode = regions, sector_color_by_region(Id, FillColor);
 		Color = "#111111"
 	),
-	(WithLabel, sector_label(Id, Label); Label = ""),
+	(WithLabel -> sector_label(Id, Label); Label = ""),
+	(sector_border(Id, Color); Color = "#aaaaaa"),
+	(sector_style(Id, Style); Style = "filled"),
 	(
-		has_port(Id), W = "1.25", H = "1.25";
-		has_planet(Id), W = "0.5", H = "0.5";
-		is_empty(Id), W = "0.35", H = "0.35";
-		not(mapped(Id)), W = "0.15", H = "0.15";
-		W = "0.25", H = "0.25"
+		Id = 1, writes_special_sector(Id, Label, Color, FillColor, Style, 'tripleoctagon');
+		port_class(Id, 9) -> writes_special_sector(Id, Label, Color, FillColor, Style, 'doubleoctagon');
+		port_class(Id, 0) -> writes_special_sector(Id, Label, Color, FillColor, Style, 'octagon');
+		has_port(Id) -> writes_port_sector(Id, Label, Color, FillColor, Style);
+		has_planet(Id) -> writes_planet_sector(Id, Label, Color, FillColor, Style);
+		is_empty(Id) -> writes_empty_sector(Id, Label, Color, FillColor, Style)
 	),
-	sector_shape(Id, Shape),
-	sector_style(Id, Style),
-	sector_border(Id, Border),
-	font(Id, Font),
-	font_size(Id, Size),
-	swritef(S,
-		'%w [shape="%w" label="%w" fillcolor="%w" fontname="%w" fontsize="%w" style="%w" color="%w" fixedsize=true width="%w" height="%w"]\n',
-		[Id, Shape, Label, Color, Font, Size, Style, Border, W, H]),
-	writes(S).
+	writes("\n"),
+	writes_sector_edges(Id, Pairs, Lanes),
+	writes("\n\n").
 
 planet_color(Class, Color):-
 	Class = 'M', Color="#558f6f"; % garden
@@ -237,29 +240,27 @@ planet_color(Class, Color):-
 writes_planet(Planet, WithLabel):-
 	planet(SectorId, Class, _, Name, _) = Planet,
 	planet_color(Class, Color),
-	(WithLabel, swritef(Label, "%w\n(%w)", [Name, Class]); Label = ""),
-	swritef(P, '"%w" [shape=circle fontsize=4 fixedsize=true width="0.25" height="0.25" sep=0 margin="0,0" fillcolor="%w" color="%w" fontcolor="#eeeeee" fontname="Fira Sans" label="%w"];\n', [Name, Color, Color, Label]),
-	swritef(Edge, '"%w" -> "%w" [style=tapered dir=forward arrowhead=none arrowtail=none len="0.0" weight="10000" penwidth=4 color="%w"];\n', [Name, SectorId, Color]),
+	(WithLabel, swritef(Label, "%w\\\\n(%w)", [Name, Class]); Label = ""),
+	swritef(P, '"%w" [shape=circle fontsize=4 fixedsize=true width="0.25" height="0.25" margin="0,0" fillcolor="%w" color="%w" fontcolor="#eeeeee" label="%w", tooltip="planet"];\n', [Name, Color, Color, Label]),
+	swritef(Edge, '"%w" -> "%w" [style=tapered dir=forward arrowhead=none arrowtail=none len="0.1" weight="10000" penwidth=4 color="%w", tooltip="planet link"];\n', [Name, SectorId, Color]),
 	writes([P, Edge]).
 
+writes_graph_header(Name):-
+	writes(['digraph "', Name, '" {']),
+	writes(['graph [overlap=false fontname="Fira Sans" splines=true bgcolor="#111111" pack=20 packmode="node"];']),
+	writes(['node [shape=circle fontname="Fira Sans" fontcolor="#eeeeee" fillcolor="#111111" fontsize=10 style=filled width=0 height=0 color="#eeeeee" regular=true];']),
+	writes(['edge [color="#bbbbbb" fontname="Fira Sans" fontsize=10 fontcolor="#88ee88"];\n']).
+
 map_sectors(FName, WithLabels, ColorMode):- 
-	findall(Id, sector(Id, _), SectorList),
-	findall((A,B), connected(A, B), Edges),
-	sort(Edges, SortEdge),
-	dedupe(SortEdge, Deduped),
-	findall((A), has_connect(A), Connected),
+	findall(S, (sector(S, _); sector(_, List), member(S, List)), SL),
+	setof(S2, member(S2, SL), SectorList),
 	findall(planet(SectorId, Class, Level, Name, Owner), planet(SectorId, Class, Level, Name, Owner), Planets),
 	trade_pairs(Pairs),
 	space_lanes(Lanes),
-	sort(Connected, SortConn),
 	tell(FName),
-	writes(['digraph {']),
-	writes(['graph [overlap=false fontname="Fira Sans Bold" splines=true bgcolor="#111111" pack=200 packmode="node"]']),
-	writes(['node [shape=circle fontname="Fira Sans Bold" fontcolor="#ffffff" fontsize=10 style=filled width=0 height=0 sep="+2.0"
-	color="#eeeeee" regular=true];']),
-	writes(['edge [color="#bbbbbb" fontsize=10 fontname="Fira Sans Bold" fontcolor="#88ee88"];']),
-	forall(member(Id, SortConn), writes_style(Id, Pairs, WithLabels, ColorMode)),
-	forall(member(E, Deduped), writes_edge(E, Pairs, Lanes, SectorList)),
+	swritef(Name, 'Map of All Sectors'), 
+	writes_graph_header(Name),
+	forall(member(Id, SectorList), writes_sector(Id, Pairs, Lanes, WithLabels, ColorMode)),
 	forall(member(Planet, Planets), writes_planet(Planet, WithLabels)),
 	writes(['}']),
 	told.
@@ -273,20 +274,13 @@ map_sectors_hidden(FName):- map_sectors(FName, false, regions).
 map_local(FName, Origin, Hops, WithLabels, ColorMode):- 
 	writef("Limiting to origin %w within hops %w\n", [Origin, Hops]),
 	within_hops(Origin, Hops, SectorList),
-	findall((A,B), ((member(A, SectorList); member(B, SectorList)), connected(A, B)), Edges),
-	sort(Edges, SortEdge),
-	dedupe(SortEdge, Deduped),
-	findall(planet(SectorId, Class, Level, Name, Owner), (member(SectorId, SectorList), planet(SectorId, Class, Level, Name, Owner)), Planets),
+	setof(planet(SectorId, Class, Level, Name, Owner), (member(SectorId, SectorList), planet(SectorId, Class, Level, Name, Owner)), Planets),
 	trade_pairs(Pairs),
 	space_lanes(Lanes),
 	tell(FName),
-	writes(['digraph {']),
-	writes(['graph [overlap=false fontname="Fira Sans Bold" splines=true bgcolor="#111111" pack=200 packmode="node"]']),
-	writes(['node [shape=plaintext fontname="Fira Sans Bold" fontcolor="#eeeeee" fillcolor="#111111" fontsize=10 style=filled width=0 height=0 sep="+2.0"
-	color="#eeeeee" regular=true];']),
-	writes(['edge [color="#bbbbbb" fontsize=10 fontname="Fira Sans Bold" fontcolor="#88ee88"];']),
-	forall(member(Id, SectorList), writes_style(Id, Pairs, WithLabels, ColorMode)),
-	forall(member(E, Deduped), writes_edge(E, Pairs, Lanes, SectorList)),
+	swritef(Name, 'Local Map for Sector %w', [Origin]), 
+	writes_graph_header(Name),
+	forall(member(Id, SectorList), writes_sector(Id, Pairs, Lanes, WithLabels, ColorMode)),
 	forall(member(Planet, Planets), writes_planet(Planet, WithLabels)),
 	writes(['}']),
 	told.

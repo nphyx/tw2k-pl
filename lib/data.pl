@@ -179,18 +179,21 @@ has_connect(A):- connected(A, _).
 % mapped(+SectorId).
 mapped(Id):- sector(Id, _).
 
+% true if a sector with Id does not have a sector map entry
+% mapped(+SectorId).
+uncharted(Id):- not(mapped(Id)).
+
 % List of all sectors within Hops distance from Id.
-% within_hops(+Id, +Hops, -List).
+% within_hops(+Id, +Hops, -List<SectorId>).
 within_hops(_, 0, []).
-within_hops(Id, 1, List):- sector(Id, List); List = [].
+within_hops(Id, 1, List):- sector(Id, List).
 within_hops(Id, Hops, List):-
-	sector(Id, Links),
+	Hops > 1,
 	NextHops is Hops - 1,
-	(NextHops > 0),
+	sector(Id, Links),
 	findall(Within, (member(LinkId, Links), within_hops(LinkId, NextHops, Within)), Withins),
-	flatten(Withins, FlatList),
-	sort([Id|FlatList], List);
-	List = [].
+	flatten([Links,Withins], Flat),
+	setof(L, member(L, Flat), List).
 
 % true if a sector has a port with at least one recorded trade.
 % has_trade(+Id).
@@ -211,8 +214,8 @@ link_from_to(A, B):-
 % true if sectors A and B are adjacent but only one links to the other.
 % bidirectional(-A<SectorId>, -B<SectorId>).
 unidirectional(A, B):-
-	(link_from_to(A, B), not(link_from_to(B, A)));
-	(link_from_to(B, A), not(link_from_to(A, B))).
+	mapped(A), mapped(B), link_from_to(A, B), not(link_from_to(B, A)).
+	%(link_from_to(B, A), not(link_from_to(A, B))).
 
 % true if the sector is mapped and has only one inbound link, and all outbound links
 % connect to mapped sectors (so it counts as isolated if outbounds are escape paths).

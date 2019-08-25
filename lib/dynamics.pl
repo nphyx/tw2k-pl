@@ -8,7 +8,7 @@
 :-dynamic trade/5.
 
 % sector(-Sector, List[-connected_sector, ...]).
-:-dynamic map/2.
+:-dynamic sector/2.
 
 % region(-Name, -List[-sector, ...]).
 :-dynamic region/2.
