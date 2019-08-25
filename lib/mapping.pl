@@ -67,10 +67,6 @@ product_tag(Product, Tag):-
 	Product = equipment, Tag = 'E';
 	Product = organics, Tag = 'O'.
 
-is_pair_member(A, B, Pairs):-
-	member(pair_trade(A, B, _, _), Pairs);
-	member(pair_trade(B, A, _, _), Pairs).
-
 writes_joined([]).
 writes_joined([H]):- writef(" %w ", [H]).
 writes_joined([H|T]):- writef(" %w", [H]), writes_joined(T).
@@ -116,40 +112,50 @@ in_lane_list(Source, Dest, Lanes):- member(Lane, Lanes), on_path(Source, Dest, L
 
 not_member(A, List):- not(member(A, List)).
 
-writes_sector_edges(SectorId, Pairs, Lanes):-
+is_pair_member(A, B, Pairs):-
+	not(A = B),
+	(
+		member(pair_trade(A, B, _, _), Pairs);
+		member(pair_trade(B, A, _, _), Pairs)
+	).
+
+writes_sector_edges(SectorId, Lanes):-
 	uncharted(SectorId) -> true;
-	sector(SectorId, Links) ->
+	sector(SectorId, Links),
 	region_of(SectorId, Region), region_color(Region, Color),
 
-	findall(Uc, (member(Uc, Links), uncharted(Uc)), UcSet), % set of uncharted links
-	findall(PDest, is_pair_member(SectorId, PDest, Pairs), PSet), % set of trade pair links
-	findall(LDest, in_lane_list(SectorId, LDest, Lanes), SLSet), % set of space lane links
-	findall(UDest, (unidirectional(SectorId, UDest), member(UDest, Links)), UDSet), % set of unidirectional links
-	findall(ICUni, (unidirectional(ICUni, SectorId)), ICUniSet), % incoming unidirectional links
-	intersection(SLSet, UDSet, UnidirectionalLanes),
-	flatten([UnidirectionalLanes, ICUniSet, PSet], SpecialSLs), % space lanes with special properties
-	subtract(SLSet, SpecialSLs, NormalSLs), % normal space lanes
-	subtract(UDSet, UnidirectionalLanes, Unidirectionals), % unidirectional links that aren't lanes
-	flatten([UDSet, SLSet, PSet, UcSet], Specials), % edges with any special attribute
-	subtract(Links, Specials, NormalSet), % edges with no special attributes
-	exclude(>(SectorId), NormalSet, Normals), % prevent double lines
-	exclude(>(SectorId), PSet, TradePairs), % prevent double lines
+	findall(Uc, (member(Uc, Links), uncharted(Uc)), UcList), % set of uncharted links
+	findall(PDest, is_pair(SectorId, PDest), PList), % trade pair links
+	findall(LDest, in_lane_list(SectorId, LDest, Lanes), SLList), % set of space lane links
+	findall(UDest, unidirectional(SectorId, UDest), UDList), % set of unidirectional links
+	findall(ICUni, unidirectional(ICUni, SectorId), ICUniList), % incoming unidirectional links
+	intersection(SLList, UDList, UnidirectionalLanes),
+	flatten([UnidirectionalLanes, ICUniList, PList], SpecialSLs), % space lanes with special properties
+	subtract(SLList, SpecialSLs, NormalSLs), % normal space lanes
+	subtract(UDList, UnidirectionalLanes, UDNonLanes), % unidirectional links that aren't lanes
+	flatten([UDList, SLList, PList, UcList], Specials), % edges with any special attribute
+	subtract(Links, Specials, NormalList), % edges with no special attributes
+	subtract(PList, UcList, ChartedPairs), % prevent uncharted trade pairs
+	exclude(>(SectorId), NormalList, Normals), % prevent double lines
+	exclude(>(SectorId), ChartedPairs, TradePairs), % prevent double lines
 	exclude(>(SectorId), NormalSLs, SpaceLanes), % prevent double lines
 
-	writes_uncharted_edges(SectorId, UcSet, Color),
+	dedupe(UDNonLanes, UDSet),
+
+	writes_uncharted_edges(SectorId, UcList, Color),
 	writes_unidirectional_lane_edges(SectorId, UnidirectionalLanes, Color),
-	writes_unidirectional_edges(SectorId, Unidirectionals, Color),
+	writes_unidirectional_edges(SectorId, UDSet, Color),
 	writes_space_lane_edges(SectorId, SpaceLanes, Color),
 	writes_paired_edges(SectorId, TradePairs),
 	writes_normal_edges(SectorId, Normals, Color).
 
 % finds the background color for a sector in normal mode
-sector_color(Id, Pairs, C):-
+sector_color(Id, C):-
 	(not(mapped(Id)), C = "#111111");
 	(pocket(Id), C = "#337777");
 	(maybe_pocket(Id), C = "#115555");
 	(isolated(Id), C = '#773333');
-	(is_pair_member(Id, _, Pairs), (
+	(is_pair(Id, _), (
 		port_class_gt(Id, 3), C = "#337733";
 		C = "#115511"
 	));
@@ -205,10 +211,10 @@ writes_empty_sector(Id, Label, Color, FillColor, Style):-
 	).
 
 
-writes_sector(Id, Pairs, Lanes, WithLabel, ColorMode):-
+writes_sector(Id, Lanes, WithLabel, ColorMode):-
 	uncharted(Id) -> writes_uncharted_sector(Id, WithLabel);
 	(
-		ColorMode = normal, sector_color(Id, Pairs, FillColor);
+		ColorMode = normal, sector_color(Id, FillColor);
 		ColorMode = regions, sector_color_by_region(Id, FillColor);
 		Color = "#111111"
 	),
@@ -224,7 +230,7 @@ writes_sector(Id, Pairs, Lanes, WithLabel, ColorMode):-
 		is_empty(Id) -> writes_empty_sector(Id, Label, Color, FillColor, Style)
 	),
 	writes("\n"),
-	writes_sector_edges(Id, Pairs, Lanes),
+	writes_sector_edges(Id, Lanes),
 	writes("\n\n").
 
 planet_color(Class, Color):-
@@ -252,15 +258,13 @@ writes_graph_header(Name):-
 	writes(['edge [color="#bbbbbb" fontname="Fira Sans" fontsize=10 fontcolor="#88ee88"];\n']).
 
 map_sectors(FName, WithLabels, ColorMode):- 
-	findall(S, (sector(S, _); sector(_, List), member(S, List)), SL),
-	setof(S2, member(S2, SL), SectorList),
+	all_known_sectors(SectorList),
 	findall(planet(SectorId, Class, Level, Name, Owner), planet(SectorId, Class, Level, Name, Owner), Planets),
-	trade_pairs(Pairs),
 	space_lanes(Lanes),
 	tell(FName),
 	swritef(Name, 'Map of All Sectors'), 
 	writes_graph_header(Name),
-	forall(member(Id, SectorList), writes_sector(Id, Pairs, Lanes, WithLabels, ColorMode)),
+	forall(member(Id, SectorList), writes_sector(Id, Lanes, WithLabels, ColorMode)),
 	forall(member(Planet, Planets), writes_planet(Planet, WithLabels)),
 	writes(['}']),
 	told.
@@ -275,12 +279,11 @@ map_local(FName, Origin, Hops, WithLabels, ColorMode):-
 	writef("Limiting to origin %w within hops %w\n", [Origin, Hops]),
 	within_hops(Origin, Hops, SectorList),
 	setof(planet(SectorId, Class, Level, Name, Owner), (member(SectorId, SectorList), planet(SectorId, Class, Level, Name, Owner)), Planets),
-	trade_pairs(Pairs),
 	space_lanes(Lanes),
 	tell(FName),
 	swritef(Name, 'Local Map for Sector %w', [Origin]), 
 	writes_graph_header(Name),
-	forall(member(Id, SectorList), writes_sector(Id, Pairs, Lanes, WithLabels, ColorMode)),
+	forall(member(Id, SectorList), writes_sector(Id, Lanes, WithLabels, ColorMode)),
 	forall(member(Planet, Planets), writes_planet(Planet, WithLabels)),
 	writes(['}']),
 	told.

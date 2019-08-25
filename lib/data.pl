@@ -127,6 +127,13 @@ trade_pairs(Pairs):-
 	findall(P, trade_pair(P), Ps),
 	dedupe(Ps, Pairs).
 
+is_pair(A, B):-
+	bidirectional(A, B),
+	port_buys(A, ProductA),
+	port_sells(A, ProductB),
+	port_sells(B, ProductA),
+	port_buys(B, ProductB).
+
 % finds trade routes - non-adjacent ports with matching buys/sells (SLOW)
 % trade_route(+Pair<pair_route>).
 trade_route(Pair):-
@@ -246,3 +253,10 @@ region_of(SectorId, Region):-
 	region(Region, Sectors),
 	member(SectorId, Sectors);
 	Region = unknown.
+
+known_sector(Id):- 
+	sector(Id, _);
+	sector(_, List), member(Id, List).
+
+all_known_sectors(List):-
+	setof(Id, known_sector(Id), List).
