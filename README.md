@@ -76,7 +76,7 @@ Usage
 tw2k [options]
 
 Examples:
-tw2k --map normal -R neato #render a map of sectors using neato
+tw2k --map global -R neato #render a map of sectors using neato
 tw2k --report pairs #print a report of known trade pairs
 
 Options:
@@ -104,9 +104,8 @@ Options:
 --data-dir  -d  atom=data              set the directory to load data from
 
 Map and Graph Modes:
-  normal: a graph with color-coded points of interest
+  global: a map of the universe with color-coded points of interest
   local:  only render sectors within a number of hops of an origin sector (see --hops, --origin)
-  secret: a graph with all the labels hidden, for showing off without sharing
 ```
 
 You can also use it interactively. There are a bunch of useful functions in there
