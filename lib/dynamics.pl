@@ -4,7 +4,7 @@
 % port(-Sector, -Name, -Class, -fuel<buys/sells>, -organics<buys/sells>, -equipment<buys/sells>)
 :-dynamic port/6.
 
-% trade(-Sector, -type<buys/sells>, -product<fuel/organics/equipment>, -price, -quantity)
+% trade(-Sector, -Mode<buys/sells>, -Product<fuel/organics/equipment>, -Quantity, -Price)
 :-dynamic trade/5.
 
 % sector(-Sector, List[-connected_sector, ...]).

@@ -11,26 +11,30 @@ planet_orig=$data_dir/planets.csv
 planet_tmp=$tmp_dir/planets.csv
 region_orig=$data_dir/regions.csv
 region_tmp=$tmp_dir/regions.csv
+trade_orig=$data_dir/trades.csv
+trade_tmp=$tmp_dir/trades.csv
+
+# pull trades out of initial parser output
+trades=$(echo "$out" | awk '/^TRADE_RECORD.*/ { gsub(/TRADE_RECORD: ?/, "", $0); print }' | sort | uniq)
+cp $trade_orig $trade_tmp
+echo "$trades" >> $trade_tmp
+echo "$(head -n 1 $trade_tmp && tail -n +2 $trade_tmp | sort | uniq)" > $trade_tmp
+echo " "
+echo "FOUND " $(echo "$trades" | wc -l | cut -f 1 -d ' ') " TRADES"
 
 # pull ports out of initial parser output
 ports=$(echo "$out" | awk '/^PORT_RECORD.*/ { gsub(/PORT_RECORD: ?/, "", $0); print }')
 cp $port_orig $port_tmp
 echo "$ports" >> $port_tmp
 echo "$(head -n 1 $port_tmp && tail -n +2 $port_tmp | sort | uniq)" > $port_tmp
-echo " "
-echo "FOUND PORTS"
-echo "=========================="
-echo "$ports"
+echo "FOUND " $(echo "$ports" | wc -l | cut -f 1 -d ' ') " PORTS"
 
 # pull sectors out of initial parser output
 sectors=$(echo "$out" | awk '/^SECTOR_RECORD.*/ { gsub(/SECTOR_RECORD: ?/, "", $0); print }')
 cp $sector_orig $sector_tmp
 echo "$sectors" >> $sector_tmp
 echo "$(head -n 1 $sector_tmp && tail -n +2 $sector_tmp | sort | uniq)" > $sector_tmp
-echo " "
-echo "FOUND SECTORS"
-echo "=========================="
-echo "$sectors"
+echo "FOUND " $(echo "$sectors" | wc -l | cut -f 1 -d ' ') " SECTORS"
 
 # pull regions out of initial parser output
 # this is superjank but it works?
@@ -66,10 +70,8 @@ regions=$(cat $tmp_dir/tmp | awk '{ gsub(/^[[:space:]]*/, "", $0); gsub(/[[:spac
 	}' | awk '{ gsub(/^, ?/, "", $0); gsub(/,$/, "", $0); print $0 }')
 echo "$(head -n 1 $region_orig && echo "$regions" | sort | uniq)" > $region_tmp
 rm $tmp_dir/tmp
-echo " "
-echo "FOUND REGIONS"
-echo "=========================="
-echo "$regions"
+echo "FOUND " $(echo "$regions" | wc -l | cut -f 1 -d ' ') " REGIONS"
+echo "$out" | awk '/^DEBUG.*/ { print }'
 
 # pull planets out of initial parser output
 # uses a different parser for planets specifically
@@ -78,10 +80,5 @@ planets=$(echo "$out" | awk '/^PLANET_RECORD.*/ { gsub(/PLANET_RECORD: ?/, "", $
 cp $planet_orig $planet_tmp
 echo "$planets" >> $planet_tmp
 echo "$(head -n 1 $planet_tmp && tail -n +2 $planet_tmp | sort | uniq)" > $planet_tmp
-echo " "
-echo "FOUND PLANETS"
-echo "=========================="
-echo "$planets"
+echo "FOUND " $(echo "$planets" | wc -l | cut -f 1 -d ' ') " PLANETS"
 
-# stub
-touch $tmp_dir/trades.csv

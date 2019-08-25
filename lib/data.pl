@@ -51,26 +51,71 @@ is_empty(Id):-
 shortest_route(A, B, H):- go(A, B, H).
 
 % finds price for a product in a sector
-% unit_price(-Id<sectorId>, -Product<fuel|organics|equipment>, +Value).
+% unit_price(+Id<sectorId>, +Product<fuel|organics|equipment>, -Value).
 unit_price(Id, Product, Value):- 
-	trade(Id, _, Product, Price, Qty),
+	trade(Id, _, Product, Qty, Price),
 	Value is Price / Qty.
+
+% thanks StackOverflow
+average( List, Average ):- 
+    sum_list(List, Sum),
+    length(List, Length),
+    Length > 0, 
+    Average is Sum / Length.
+
+% average of all sales of Product at port in Id.
+% average_sale(+Id, +Product, -Avg).
+average_sale(Id, Product, Avg):-
+	findall(V, (trade(Id, s, Product, Qty, Price), V is Price / Qty), Vals),
+	average(Vals, Avg).
+
+% average of all sales of Product at port in Id.
+% average_sale(+Id, +Product, -Avg).
+average_offer(Id, Product, Avg):-
+	findall(V, (trade(Id, b, Product, Qty, Price), V is Price / Qty), Vals),
+	average(Vals, Avg).
+
+% lists all the average sale values for a given product.
+% all_average_sales(+Product, -List<(Id, Average)>).
+all_average_sales(Product, List):-
+	findall((Id, Avg), (port_sells(Id, Product), average_sale(Id, Product, Avg)), List).
+
+% finds the best average sale price of a product in any port
+% best_average_sale(+Product, -Id, -Price).
+lowest_average_sale(Product, Id, Price):-
+	all_average_sales(Product, List),
+	findall(P, member((_, P), List), Prices),
+	min_list(Prices, Price),
+	member((Id, Price), List).
+
+% lists all the average offer values for a given product.
+% all_average_offers(+Product, -List<(Id, Average)>).
+all_average_offers(Product, List):-
+	findall((Id, Avg), (port_sells(Id, Product), average_offer(Id, Product, Avg)), List).
+
+% finds the best average offer price of a product in any port
+% best_average_offer(+Product, -Id, -Price).
+highest_average_offer(Product, Id, Price):-
+	all_average_offers(Product, List),
+	findall(P, member((_, P), List), Prices),
+	max_list(Prices, Price),
+	member((Id, Price), List).
 
 % finds sale price for a product in a sector, if the sector's port sells the product
 % sells_price(-Id<sectorId>, -Product<fuel|organics|equipment>, +Value).
 sells_price(Id, Product, Value):-
-	trade(Id, s, Product, Price, Qty),
+	trade(Id, s, Product, Qty, Price),
 	Value is Price / Qty.
 
 % finds buy price for a product in a sector, if the sector's port buys the product
 % buys_price(-Id<sectorId>, -Product<fuel|organics|equipment>, +Value).
 buys_price(Id, Product, Value):-
-	trade(Id, b, Product, Price, Qty),
+	trade(Id, b, Product, Qty, Price),
 	Value is Price / Qty.
 
 % finds the cheapest sale price for a given product from trade records
-% cheapest_sale(-Product, +Answer<sale(Id, Price)>).
-cheapest_sale(Product, Answer):- 
+% lowest_sale(-Product, +Answer<sale(Id, Price)>).
+lowest_sale(Product, Answer):- 
 	port_sells(Id, Product),
 	findall(Unit, sells_price(Id, Product, Unit), UnitPrices),
 	list_min(UnitPrices, Min),

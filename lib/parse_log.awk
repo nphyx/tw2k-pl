@@ -1,4 +1,14 @@
 #!/usr/bin/gawk -f
+BEGIN {
+	sector = "";
+	trade_sector = "";
+	docking = false;
+	query = "F";
+	quantity = "F";
+	price = "F";
+	mode = "F";
+}
+
 /^Sector [[:digit:]]+ has warps to sector/{
 	ORS=""
 	sector = $2
@@ -35,7 +45,6 @@
 }
 
 /^Ports/{
-	#FS=" :,";
 	ORS=" ";
 	printf("PORT_RECORD: %.3d, ",sector)
 	if($(NF-1) == "(Special)") { # special handling for StarDock
@@ -61,4 +70,53 @@
 		print tolower($NF)
 	}
 }
+/^Sector  : [[:digit:]]+ in/{
+	trade_sector = $3
+}
 
+/^-=-=-[[:space:]]+Docking Log[[:space:]]+-=-=-/{
+	docking = 1
+}
+/^Command/{
+	docking = 0
+}
+
+/^How many holds of Fuel Ore do you want to/{
+	if(docking) {
+		product = "fuel"
+		mode = $11
+	}
+}
+
+/^How many holds of Organics do you want to/{
+	if(docking) {
+		product = "organics"
+		mode = $10
+	}
+}
+
+/^How many holds of Equipment do you want to/{
+	if(docking) {
+		product = "equipment"
+		mode = $10
+	}
+}
+
+/^Agreed, [[:digit:]]+ units./{
+	if(docking) {
+		quantity = $2
+	}
+}
+
+/^We'll [[:alpha:]]+ them for/{
+	if(docking && trade_sector && product && mode && quantity) {
+		gsub(/,/, "", $5)
+		price = $5
+		printf("TRADE_RECORD: %.3d, ", trade_sector)
+		print substr(mode, 1, 1)", "product", "quantity", "price"\n"
+	}
+	product = ""
+	mode = ""
+	quantity = ""
+	price = ""
+}

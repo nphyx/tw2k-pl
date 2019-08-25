@@ -61,13 +61,22 @@ It (usually) knows how to parse:
 
 - Ports, Sector warp links, planets, and region names from sector display (`D` in a sector), also from HoloScans (`S`, `H`, if you have a HoloScanner)
 - Sector warp links from computer reports (`C`, `I`, `<sector id>`)
+- Trade reports of each buy and sell you logged by product and sector id
 
 It cannot parse:
 - Planet class and ownership from planet scans (yet)
-- Trade reports (you'll have to do that manually for now)
 - Any other stuff that might be useful
 
 The parser will put output in `tmp_data`, so as not to stomp on your existing data. You can merge or copy it manually if you're happy with it.
+
+Protip:
+```sh
+$ tw2k --data-dir=tmp_data [other options] to use it
+```
+
+```prolog
+?- import_db('tmp_data') % use in interactive mode
+```
 
 Beatings will continue until parser improves.
 
@@ -118,7 +127,9 @@ $ swipl -s tw2k.pl
 Examples:
 ```prolog
 ?- import_db. % you'll want to do this to load up your data first
-?- port_sells(fuel).
+?- port_sells(Id, fuel). % find ports selling fuel
+?- best_average_sale(equipment, Id, Price). % find the best place to buy equipment
+?- best_average_offer(organics, Id, Price). % find the best place to sell organics
 ?- go_path(1, 999, Path, Hops). % use dijkstra to calculate shortest path between sectors 1 and 2
 ?- halt.
 ```
