@@ -105,7 +105,7 @@ main:-
 				writef('Generating graph...\n'),
 				(
 					(
-						Map = normal, map_sectors(O, Labels, Colors);
+						Map = global, map_sectors(O, Labels, Colors);
 						(
 							Map = local,
 							member(hops(Hops), Args),
@@ -127,7 +127,7 @@ main:-
 				writef('Generating graph...\n'),
 				(
 					(
-						Graph = normal, map_sectors(O, Labels, Colors);
+						Graph = global, map_sectors(O, Labels, Colors);
 						(
 							Graph = local,
 							member(hops(Hops), Args),
@@ -165,14 +165,13 @@ main:-
 				format('~nUsage:~n'),
 				format('tw2k [options]~n'),
 				format('~nExamples:~n'),
-				format('tw2k --map normal -R neato #render a map of sectors using neato~n'),
+				format('tw2k --map global -R neato #render a map of sectors using neato~n'),
 				format('tw2k --report pairs #print a report of known trade pairs~n'),
 				format('~nOptions:~n'),
 				format('~w\n', [HelpText]),
-				format('Map and Graph Modes:~n~w~n~w~n~w~n', [
-					'  normal: a graph with color-coded points of interest',
-					'  local:  only render sectors within a number of hops of an origin sector (see --hops, --origin)',
-					'  secret: a graph with all the labels hidden, for showing off without sharing'
+				format('Map and Graph Modes:~n~w~n~w~n', [
+					'  global: a map of the universe with color-coded points of interest',
+					'  local:  only render sectors within a number of hops of an origin sector (see --hops, --origin)'
 				]),
 				halt
 			)
