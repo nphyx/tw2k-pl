@@ -10,7 +10,8 @@ It also makes fancy maps, like these:
 
 (second one has all its sector info hidden so I don't give up too much of my own intel)
 
-Maybe sometime I'll put a legend in there, but hopefully you can figure it out in the meanwhile.
+Maybe sometime I'll put a legend in there, but hopefully you can figure it out in the meanwhile. The lines and nodes have hover tooltips, which are viewable when opened
+in a browser (but not in most image preview programs).
 
 Requires
 --------
@@ -50,11 +51,11 @@ Note that for ports, class 0 and 9 port buys/sells will be ignored for the purpo
 
 Importing Data
 --------------
-There's a very early, very janky build of a log parser at `data_from_log`. Run at your own risk. It expects to find your logs at `~/bbs.log`,
+There's a very early, very janky build of a log parser at `parse_log`. Run at your own risk. It expects to find your logs at `~/bbs.log`,
 and will handle stripping ansi codes.
 
-If you're using SyncTerm to connect to your BBS, you should be able to begin logging by setting Log Level to 'debug', then start logging with `Alt+C`.
-If you're using some other ansi terminal I can't help you, just put your logs at `~/bbs.log` and hopefully something works.
+If you're using SyncTerm to connect to your BBS, you should be able to begin logging by setting Log Level to 'debug', then start logging with `Alt+C`,
+only tested with "RAW" mode, best to use that. If you're using some other ansi terminal I can't help you, just put your logs at `~/bbs.log` and hopefully something works.
 
 It (usually) knows how to parse:
 
