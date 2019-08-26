@@ -275,9 +275,9 @@ map_sectors(FName):- map_sectors(FName, true, normal).
 
 map_sectors_hidden(FName):- map_sectors(FName, false, regions).
 
-map_local(FName, Origin, Hops, WithLabels, ColorMode):- 
-	writef("Limiting to origin %w within hops %w\n", [Origin, Hops]),
-	within_hops(Origin, Hops, SectorList),
+map_local(FName, Origin, Warps, WithLabels, ColorMode):- 
+	writef("Limiting to origin %w within warps %w\n", [Origin, Warps]),
+	within_warps(Origin, Warps, SectorList),
 	setof(planet(SectorId, Class, Level, Name, Owner), (member(SectorId, SectorList), planet(SectorId, Class, Level, Name, Owner)), Planets),
 	space_lanes(Lanes),
 	tell(FName),
@@ -288,5 +288,5 @@ map_local(FName, Origin, Hops, WithLabels, ColorMode):-
 	writes(['}']),
 	told.
 
-map_local(FName, Origin, Hops, WithLabels):- map_local(FName, Origin, Hops, WithLabels, normal).
-map_local(FName, Origin, Hops):- map_local(FName, Origin, Hops, true).
+map_local(FName, Origin, Warps, WithLabels):- map_local(FName, Origin, Warps, WithLabels, normal).
+map_local(FName, Origin, Warps):- map_local(FName, Origin, Warps, true).

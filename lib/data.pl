@@ -5,14 +5,14 @@
 path(From,To,Dist) :- link_from_to(From,To), Dist is 1.
 
 % true if both A and B are mapped, there's a one-way link between them, and returning
-% from the destination point of the one way-link takes longer than T hops.
-% long_return(-A<SectorId>, -B<SectorId>, -T<int>).
-long_return(A,B,T):-
+% from the destination point of the one way-link takes longer than W warps.
+% long_return(-A<SectorId>, -B<SectorId>, -W<int>).
+long_return(A,B,W):-
 	unidirectional(A,B),
 	mapped(A), mapped(B),
 	(
-		(not(link_from_to(A,B)), go(A,B,L), L > T);
-		(not(link_from_to(B,A)), go(B,A,L), L > T)
+		(not(link_from_to(A,B)), go(A,B,L), L > W);
+		(not(link_from_to(B,A)), go(B,A,L), L > W)
 	).
 
 % as long_return/3, with a default T of 10.
@@ -47,8 +47,8 @@ is_empty(Id):-
 	not(has_planet(Id)).
 
 % finds the shortest route between two sectors using dijkstra algorithm
-% shortest_route(-A<sectorId>, -B<sectorId>, +H<hops>), 
-shortest_route(A, B, H):- go(A, B, H).
+% shortest_route(-A<sectorId>, -B<sectorId>, +W<warps>), 
+shortest_route(A, B, W):- go(A, B, W).
 
 % finds price for a product in a sector
 % unit_price(+Id<sectorId>, +Product<fuel|organics|equipment>, -Value).
@@ -201,14 +201,15 @@ trade_route(A, B, ProductA, ProductB):-
 */
 
 
-% finds trade routes - non-adjacent ports with matching buys/sells (SLOW)
-% trade_route(+Pair<pair_route>).
-trade_routes(Routes):- 
+% finds trade routes - non-adjacent ports with matching buys/sells, and computes
+% profitability by turns per warp.
+% trade_route(+TPW, Routes<route>).
+trade_routes(TPW, Routes):- 
 	setof((A, B, ProductA, ProductB), trade_route(A, B, ProductA, ProductB), Todo),
-	trade_routes2(Todo, Routes).
+	trade_routes2(TPW, Todo, Routes).
 
-trade_routes2([], []).
-trade_routes2([H|T], Answer):-
+trade_routes2(_, [], []).
+trade_routes2(TPW, [H|T], Answer):-
 	(A, B, ProductA, ProductB) = H,
 	average_sale(A, ProductA, UnitA1),
 	average_offer(B, ProductA, UnitB1),
@@ -217,37 +218,39 @@ trade_routes2([H|T], Answer):-
 	Profit is (UnitA1 - UnitB1) + (UnitA2 - UnitB2),
 	shortest_route(A, B, L),
 	RoundTrip is L * 2,
-	ProfitPerHop is Profit / RoundTrip,
-	Pair = route(A, ProductA, B, ProductB, Profit, RoundTrip, ProfitPerHop),
-	trade_routes2(T, Partial),
+	ProfitPerWarp is Profit / RoundTrip,
+	Turns is (RoundTrip * TPW) + 2,
+	ProfitPerTurn is Profit / Turns,
+	Pair = route(A, ProductA, B, ProductB, Profit, RoundTrip, ProfitPerWarp, Turns, ProfitPerTurn),
+	trade_routes2(TPW, T, Partial),
 	append(Partial, [Pair], Answer).
 
+% finds trade routes and sorts by ProfitPerWarp, descending.
+% trade_routes_sorted(+TPW, -Sorted<List<route>>).
+trade_routes_sorted(TPW, Sorted):-
+	trade_routes(TPW, Routes),
+	sort(9, @>, Routes, Sorted).
+
 % find major space lanes (routes between class 0 / class 9 ports).
-% space_lane(+Lane).
+% space_lane(-Lane).
 space_lane(Lane):-
 	(port_class(A, 0); port_class(A, 9)),
 	(port_class(B, 0); port_class(B, 9)),
 	go_path(A, B, Lane, _).
 
 % list of all space lanes
-% space_lanes(+Lanes).
+% space_lanes(-Lanes).
 space_lanes(Lanes):-
 	findall(Lane, space_lane(Lane), Lanes).
 
 % true if a connection between two points is adjacent in a path.
-% on_path(-A, -B, -Path).
+% on_path(+A, +B, -Path).
 on_path(A, B, Path):- adjacent(A, B, Path); adjacent(B, A, Path).
 
 % true if a connection between two points is adjacent on any of a list of paths.
 % on_any_path(+A, +B, -Path).
 on_any_path(A, B, Paths):-
 	once((member(Path, Paths), on_path(A, B, Path))).
-
-% finds trade routes and sorts by ProfitPerHop, descending.
-% sorted_trade_routes(-Sorted<List<pair_route>>).
-sorted_trade_routes(Sorted):-
-	trade_routes(Routes),
-	sort(7, @>, Routes, Sorted).
 
 connected(A, B):- edge(A, B, _); edge(B, A, _).
 has_connect(A):- connected(A, _).
@@ -260,15 +263,15 @@ mapped(Id):- sector(Id, _).
 % mapped(+SectorId).
 uncharted(Id):- not(mapped(Id)).
 
-% List of all sectors within Hops distance from Id.
-% within_hops(+Id, +Hops, -List<SectorId>).
-within_hops(_, 0, []).
-within_hops(Id, 1, List):- sector(Id, List).
-within_hops(Id, Hops, List):-
-	Hops > 1,
-	NextHops is Hops - 1,
+% List of all sectors within Warps distance from Id.
+% within_warps(+Id, +Warps, -List<SectorId>).
+within_warps(_, 0, []).
+within_warps(Id, 1, List):- sector(Id, List).
+within_warps(Id, Warps, List):-
+	Warps > 1,
+	NextWarps is Warps - 1,
 	sector(Id, Links),
-	findall(Within, (member(LinkId, Links), within_hops(LinkId, NextHops, Within)), Withins),
+	findall(Within, (member(LinkId, Links), within_warps(LinkId, NextWarps, Within)), Withins),
 	flatten([Links,Withins], Flat),
 	setof(L, member(L, Flat), List).
 

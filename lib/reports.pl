@@ -1,36 +1,38 @@
 :- [data].
 
 print_route_row(R, Holds):- 
-	route(A, ProductA, B, ProductB, ProfitUnit, RoundTrip, ProfitPerHopUnit) = R,
+	route(A, ProductA, B, ProductB, ProfitUnit, RoundTrip, ProfitPerWarpUnit, Turns, ProfitPerTurnUnit) = R,
 	Profit is ProfitUnit * Holds,
-	ProfitPerHop is ProfitPerHopUnit * Holds,
-	ProfitPerHop >= 0,
+	ProfitPerTurn is ProfitPerTurnUnit * Holds,
+	ProfitPerWarp is ProfitPerWarpUnit * Holds,
 	format(
-		'| ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~1f~7+~t~| | ~|~w~4+~t~| | ~|~1f~7+~t~| |\n',
-		[A, ProductA, B, ProductB, Profit, RoundTrip, ProfitPerHop]
+		'| ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~1f~7+~t~| | ~|~w~5+~t~| | ~|~1f~7+~t~| | ~|~w~5+~t~| | ~|~1f~7+~t~| |\n',
+		[A, ProductA, B, ProductB, Profit, RoundTrip, ProfitPerWarp, Turns, ProfitPerTurn]
 	).
 
-print_route_foot():- writef('======================================================================\n').
+print_route_foot():- writef('=========================================================================================\n').
 
 print_route_head(Holds):-
 	writef('\nKnown Trade Routes (%w holds)\n', [Holds]),
 	print_route_foot(),
 	format(
-		'| ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~7+~t~| | ~|~w~4+~t~| | ~|~w~7+~t~| |\n',
-		['A', 'ProductA', 'B', 'ProductB', 'Profit', 'Hops', 'PerHop']
+		'| ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~7+~t~| | ~|~w~5+~t~| | ~|~w~7+~t~| | ~|~w~5+~t~| | ~|~w~7+~t~| |\n',
+		['A', 'ProductA', 'B', 'ProductB', 'Profit', 'Warps', 'PerWarp', 'Turns', 'PerTurn']
 	),
-	writef('|--------------------+--------------------+---------+------+---------|\n').
+	writef('|--------------------+--------------------+---------+-------+---------+-------+---------|\n').
 
-% prints all routes between two ports with paired buys/sells, sorted by profit per hop,
+% prints all routes between two ports with paired buys/sells, sorted by profit per turn,
 % profit multiplied by Holds.
-% print_routes(-Holds).
-print_routes(Holds):-
-	sorted_trade_routes(Sorted),
+% print_routes(+Holds, +TPW).
+print_routes(Holds, TPW):-
+	trade_routes_sorted(TPW, Sorted),
 	print_route_head(Holds),
 	forall(member(P, Sorted), print_route_row(P, Holds)),
 	print_route_foot().
 
-% prints all routes between two ports with paired buys/sells, sorted by profit per hop.
+print_routes(Holds):- print_routes(Holds, 2).
+
+% prints all routes between two ports with paired buys/sells, sorted by profit per warp.
 % print_routes().
 print_routes():- print_routes(1).
 

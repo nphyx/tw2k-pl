@@ -50,9 +50,9 @@ main:-
 			help(['label sectors'])
 		],
 		[
-			opt(hops), type(integer), default(3),
-			shortflags(['H']), longflags(['hops']),
-			help(['hop limit for local maps'])
+			opt(warps), type(integer), default(3),
+			shortflags(['W']), longflags(['warps']),
+			help(['warp limit for local maps'])
 		],
 		[
 			opt(origin), type(integer), default(1),
@@ -73,6 +73,11 @@ main:-
 			opt(holds), type(integer), default(1),
 			shortflags([]), longflags(['holds']),
 			help(['when used with reporting, multiply per-unit value by number of holds'])
+		],
+		[
+			opt(tpw), type(integer), default(2),
+			shortflags(['t']), longflags(['tpw']),
+			help(['turns per warp for route calculations'])
 		],
 		[
 			opt(data_dir), type(atom), default('data'),
@@ -101,21 +106,21 @@ main:-
 				(
 					Map = local -> (
 						import_db(Data),
-						member(hops(Hops), Args),
+						member(warps(Warps), Args),
 						member(origin(Origin), Args),
 						(
 							member(output(Of), Args), not(var(Of));
-							swritef(Of, '%w_%w.dot', [Origin, Hops])
+							swritef(Of, '%w_%w.dot', [Origin, Warps])
 						),
 						(
 							member(image(If), Args), not(var(If));
-							swritef(If, '%w_%w.svg', [Origin, Hops])
+							swritef(If, '%w_%w.svg', [Origin, Warps])
 						),
 						swritef(Og, '%w/%w', [MapDir, Of]), atom_string(O, Og),
 						swritef(Ig, '%w/%w', [MapDir, If]), atom_string(I, Ig),
 						swritef(Cmd, 'dot -Tsvg -K%w -o %w %w', [GvCmd, I, O]),
 						writef('\n-=-=-= Generating Local Graph ::: %w =-=-=-\n', [O]),
-						map_local(O, Origin, Hops, Labels, Colors),
+						map_local(O, Origin, Warps, Labels, Colors),
 						writef('Done.\n\n-=-=-=  Generating Local Map  ::: %w =-=-=-\n', [I]),
 						shell(Cmd),
 						writef('Done.\n\n'),
@@ -157,15 +162,15 @@ main:-
 				(
 					Graph = local -> (
 						import_db(Data),
-						member(hops(Hops), Args),
+						member(warps(Warps), Args),
 						member(origin(Origin), Args),
 						(
 							member(output(Of), Args), not(var(Of));
-							swritef(Of, '%w_%w.dot', [Origin, Hops])
+							swritef(Of, '%w_%w.dot', [Origin, Warps])
 						),
 						swritef(Og, '%w/%w', [MapDir, Of]), atom_string(O, Og),
 						writef('\n-=-=-= Generating Local Graph ::: %w =-=-=-\n', [O]),
-						map_local(O, Origin, Hops, Labels, Colors),
+						map_local(O, Origin, Warps, Labels, Colors),
 						halt
 					);
 					Graph = global -> (
@@ -193,11 +198,12 @@ main:-
 					member(data_dir(Data), Args),
 					(Report = pairs; Report = routes),
 					(member(holds(Holds), Args); Holds = 1),
+					(member(tpw(TPW), Args); TPW = 2),
 					import_db(Data),
 					format('~nGenerating ~w report:~n', [Report]),
 					(
 						Report = pairs, print_pairs();
-						Report = routes, print_routes(Holds)
+						Report = routes, print_routes(Holds, TPW)
 					),
 					halt
 				);
@@ -228,15 +234,15 @@ main:-
 						'+-------------------------------------------------------------------------------------------------+\n',
 						'| global  : render a map of the universe with color-coded points of interest                      |\n',
 						'|         : default output is maps/sectors.dot, maps/sectors.svg                                  |\n',
-						'| example : to create a map of sector 1 (Sol system) and surroundings within 3 hops:              |\n',
+						'| example : to create a map of sector 1 (Sol system) and surroundings within 3 warps:             |\n',
 						'|         : tw2k --map local -O 1 -H 3                                                            |\n',
 						'|-------------------------------------------------------------------------------------------------|\n',
-						'| local   : only render sectors within a number of hops of an origin sector                       |\n',
-						'|         : default output is maps/<origin>_<hops>.dot, maps/<origin>_<hops>.svg                  |\n',
-						'| example : to create a map of sector 1 (Sol system) and surroundings within 3 hops:              |\n',
+						'| local   : only render sectors within a number of warps of an origin sector                      |\n',
+						'|         : default output is maps/<origin>_<warps>.dot, maps/<origin>_<warps>.svg                |\n',
+						'| example : to create a map of sector 1 (Sol system) and surroundings within 3 warps:             |\n',
 						'|         : tw2k --map local -O 1 -H 3                                                            |\n',
 						'| options : --origin   <int>       origin sector ID to start with (default 1 - Sol system)        |\n',
-						'|         : --hops     <int>       distance in hops from origin to include (default 3)            |\n',
+						'|         : --warps     <int>      distance in warps from origin to include (default 3)           |\n',
 						'+-------------------------------------------------------------------------------------------------+\n',
 						'\n',
 						'                         -=-=-=-= Options for all Maps & Graphs =-=-=-=-\n',
@@ -261,11 +267,12 @@ main:-
 						'| note    : built from list of ports stored in ports.csv, requires at least 2 matching entries    |\n',
 						'|-------------------------------------------------------------------------------------------------|\n',
 						'| routes  : print a list of trade routes - ports at any distance that have matching buys and      |\n',
-						'|         : sells, sorted by profit per hop per unit sold.                                        |\n',
+						'|         : sells, sorted by profit per turn per unit sold.                                       |\n',
 						'| note    : built from list of ports in ports.csv and recorded trades in trades.csv               |\n',
 						'|         : requires at least 2 matching trades and logs of corresponding ports                   |\n',
 						'|         :                                                                                       |\n',
-						'| options : --holds <number>       if present, calculates total profit for a full hold.           |\n',
+						'| options : --holds <number>       if present, calculates total profit for full holds.            |\n',
+						'| options : --tpw   <number>       turns per warp (default 2 for Merchant Freighter)              |\n',
 						'+-------------------------------------------------------------------------------------------------+\n'
 					]),
 					halt

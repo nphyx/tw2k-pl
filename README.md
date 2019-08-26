@@ -106,7 +106,7 @@ Examples:
 ?- port_sells(Id, fuel). % find ports selling fuel
 ?- best_average_sale(equipment, Id, Price). % find the best place to buy equipment
 ?- best_average_offer(organics, Id, Price). % find the best place to sell organics
-?- go_path(1, 999, Path, Hops). % use dijkstra to calculate shortest path between sectors 1 and 2
+?- go_path(1, 999, Path, Warps). % use dijkstra to calculate shortest path between sectors 1 and 2
 ?- halt.
 ```
 
