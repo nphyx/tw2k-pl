@@ -1,20 +1,25 @@
 :- [data].
 
 print_route_row(R, Holds):- 
-	R = route(A, ProductA, B, ProductB, ProfitUnit, RoundTrip, ProfitPerHopUnit),
+	route(A, ProductA, B, ProductB, ProfitUnit, RoundTrip, ProfitPerHopUnit) = R,
 	Profit is ProfitUnit * Holds,
 	ProfitPerHop is ProfitPerHopUnit * Holds,
 	ProfitPerHop >= 0,
-	%           PortA         ProductA       PortB          ProductB       Profit           RT             PPH
-	format('| ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~1f~7+~t~| | ~|~w~5+~t~| | ~|~1f~7+~t~| |\n', [A, ProductA, B, ProductB, Profit, RoundTrip, ProfitPerHop]).
+	format(
+		'| ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~1f~7+~t~| | ~|~w~4+~t~| | ~|~1f~7+~t~| |\n',
+		[A, ProductA, B, ProductB, Profit, RoundTrip, ProfitPerHop]
+	).
 
-print_route_foot():- writef('=========================================================================\n').
+print_route_foot():- writef('======================================================================\n').
 
 print_route_head(Holds):-
 	writef('\nKnown Trade Routes (%w holds)\n', [Holds]),
 	print_route_foot(),
-	format('| ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~7+~t~| | ~|~w~5+~t~| | ~|~w~7+~t~| |\n', ['A', 'ProductA', 'B', 'ProductB', 'Profit', 'Hops', 'PerHop']),
-	writef('|---------------------+---------------------+---------+-------+---------|\n').
+	format(
+		'| ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~7+~t~| | ~|~w~4+~t~| | ~|~w~7+~t~| |\n',
+		['A', 'ProductA', 'B', 'ProductB', 'Profit', 'Hops', 'PerHop']
+	),
+	writef('|--------------------+--------------------+---------+------+---------|\n').
 
 % prints all routes between two ports with paired buys/sells, sorted by profit per hop,
 % profit multiplied by Holds.
@@ -22,7 +27,7 @@ print_route_head(Holds):-
 print_routes(Holds):-
 	sorted_trade_routes(Sorted),
 	print_route_head(Holds),
-	(forall(member(P, Sorted), print_route_row(P, Holds)); true),
+	forall(member(P, Sorted), print_route_row(P, Holds)),
 	print_route_foot().
 
 % prints all routes between two ports with paired buys/sells, sorted by profit per hop.
