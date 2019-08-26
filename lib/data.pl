@@ -341,3 +341,11 @@ known_sector(Id):-
 
 all_known_sectors(List):-
 	setof(Id, known_sector(Id), List).
+
+mapped_sectors(List):-
+	setof(Id, mapped(Id), List).
+
+unmapped_sectors(List):-
+	mapped_sectors(Mapped),
+	numlist(1, 999, All),
+	subtract(All, Mapped, List).

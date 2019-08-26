@@ -191,25 +191,27 @@ main:-
 			)
 		);
 		( % report mode
-			member(report(Report), Args),
-			not(var(Report)),
-			once((
-				(
+			(member(report(Report), Args), not(var(Report))),
+			(
+				Supported = [pairs, routes, mapped, unmapped, boundary],
+				member(Report, Supported), (
 					member(data_dir(Data), Args),
-					(Report = pairs; Report = routes),
-					(member(holds(Holds), Args); Holds = 1),
-					(member(tpw(TPW), Args); TPW = 2),
 					import_db(Data),
 					format('~nGenerating ~w report:~n', [Report]),
 					(
-						Report = pairs, print_pairs();
-						Report = routes, print_routes(Holds, TPW)
-					),
-					halt
+						Report = routes -> (
+							(member(holds(Holds), Args); Holds = 1),
+							(member(tpw(TPW), Args); TPW = 2),
+							print_routes(Holds, TPW), halt
+						);
+						Report = pairs -> print_pairs(), halt;
+						Report = mapped -> print_mapped(), halt;
+						Report = unmapped -> print_unmapped(), halt;
+						Report = boundary -> print_boundary(), halt
+					)
 				);
-				format('Unsupported report type ~w, try --help~n', [Report]),
-				halt
-			))
+				format('Unsupported report type ~w, try --help~n', [Report]), halt
+			)
 		); % end reports
 		( % help requested
 			not(var(Help)),
@@ -263,16 +265,22 @@ main:-
 						'\n\n',
 						'                                -=-=-=-= Report Modes =-=-=-=-\n',
 						'+-------------------------------------------------------------------------------------------------+\n',
-						'| pairs   : print a list of known trade pairs - adjacent ports which have matching buys and sells |\n',
-						'| note    : built from list of ports stored in ports.csv, requires at least 2 matching entries    |\n',
+						'| mapped   : list all mapped sectors                                                              |\n',
 						'|-------------------------------------------------------------------------------------------------|\n',
-						'| routes  : print a list of trade routes - ports at any distance that have matching buys and      |\n',
-						'|         : sells, sorted by profit per turn per unit sold.                                       |\n',
-						'| note    : built from list of ports in ports.csv and recorded trades in trades.csv               |\n',
-						'|         : requires at least 2 matching trades and logs of corresponding ports                   |\n',
-						'|         :                                                                                       |\n',
-						'| options : --holds <number>       if present, calculates total profit for full holds.            |\n',
-						'| options : --tpw   <number>       turns per warp (default 2 for Merchant Freighter)              |\n',
+						'| unmapped : list all mapped sectors                                                              |\n',
+						'|-------------------------------------------------------------------------------------------------|\n',
+						'| boundary : list all sectors adjacent to a mapped sector, but themselves unmapped                |\n',
+						'|-------------------------------------------------------------------------------------------------|\n',
+						'| pairs    : print a list of known trade pairs - adjacent ports with matched trades               |\n',
+						'| note     : built from list of ports stored in ports.csv, requires at least 2 matching entries   |\n',
+						'|-------------------------------------------------------------------------------------------------|\n',
+						'| routes   : print a list of trade routes - ports at any distance that have matching buys and     |\n',
+						'|          : sells, sorted by profit per turn per unit sold.                                      |\n',
+						'| note     : built from list of ports in ports.csv and recorded trades in trades.csv              |\n',
+						'|          : requires at least 2 matching trades and logs of corresponding ports                  |\n',
+						'|          :                                                                                      |\n',
+						'| options  : --holds <number>       if present, calculates total profit for full holds.           |\n',
+						'| options  : --tpw   <number>       turns per warp (default 2 for Merchant Freighter)             |\n',
 						'+-------------------------------------------------------------------------------------------------+\n'
 					]),
 					halt
