@@ -136,7 +136,15 @@ Examples:
 
 See the source code for documentation.
 
-Developer Notes
+Known Issues & TODOs
+--------------------
+- Bad data can result in some of the render modes crashing while building very large maps. I've made some effort to sanitize before building the chart, but am still finding some problems - in particular keep an eye out for duplicate sectors.csv and planets.csv entries. If you get a crash while using `tw2k --map global` during the image rendering phase, that is the cause.
+- Despite the refactor, the .dot files are still pretty heavy - eventually need to group nodes and edges into subgraphs (this may also improve map clustering)
+- Map rendering takes a very long time on large maps. Nothing I can do about this. If you want a fast render you can change `splines=splines` to `splines=polyline` or `splines=false` in your `maps/sectors.dot` file and manually render, e.g. `sfdp -o maps/sectors.svg maps/sectors.dot`, but it'll draw your lines over your nodes, which is yewgly.
+- More reports on the CLI would be nice (there's lots of hidden functionality in interactive mode that doesn't have corresponding CLI options)
+- there is no GUI. #wontfix
+
+Contributing
 ---------------
 I am pretty crappy at both prolog and awk, which drive this whole thing (project was mainly an excuse to spend some time with both).
 Pull requests are welcome if you know a better way to do anything in here, or if you'd like to contribute something cool - new reports,
