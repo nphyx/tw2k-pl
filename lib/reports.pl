@@ -8,12 +8,13 @@ print_route_row(R, Holds):-
 	%           PortA         ProductA       PortB          ProductB       Profit           RT             PPH
 	format('| ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~1f~7+~t~| | ~|~w~5+~t~| | ~|~1f~7+~t~| |\n', [A, ProductA, B, ProductB, Profit, RoundTrip, ProfitPerHop]).
 
-print_route_foot():- writef('|=======================================================================|\n').
+print_route_foot():- writef('=========================================================================\n').
 
 print_route_head(Holds):-
 	writef('\nKnown Trade Routes (%w holds)\n', [Holds]),
 	print_route_foot(),
-	format('| ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~7+~t~| | ~|~w~5+~t~| | ~|~w~7+~t~| |\n', ['A', 'ProductA', 'B', 'ProductB', 'Profit', 'Hops', 'PerHop']).
+	format('| ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~7+~t~| | ~|~w~5+~t~| | ~|~w~7+~t~| |\n', ['A', 'ProductA', 'B', 'ProductB', 'Profit', 'Hops', 'PerHop']),
+	writef('|---------------------+---------------------+---------+-------+---------|\n').
 
 % prints all routes between two ports with paired buys/sells, sorted by profit per hop,
 % profit multiplied by Holds.
