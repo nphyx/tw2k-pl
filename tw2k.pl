@@ -284,7 +284,8 @@ main:-
 			not(var(Interactive)),
 			member(data_dir(Data), Args),
 			writes(['Starting interactive mode...\n']),
-			import_db(Data)
+			swritef(Cmd, 'swipl -f tw2k.pl -g "import_db(%w)"', [Data]),
+			shell(Cmd)
 		);
 		(
 			var(Interactive), var(Help),
