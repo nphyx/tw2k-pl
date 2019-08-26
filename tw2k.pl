@@ -150,7 +150,7 @@ main:-
 						format('~nGenerating ~w report:~n', [Report]),
 						(
 							Report = pairs, print_pairs();
-							Report = routes, print_routes(1)
+							Report = routes, print_routes(Holds)
 						),
 						halt
 					);

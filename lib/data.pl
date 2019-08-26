@@ -179,23 +179,48 @@ is_pair(A, B):-
 	port_sells(B, ProductA),
 	port_buys(B, ProductB).
 
+% there should not be both buy & sell records for the same product, this
+% indicates bad data
+trade_sanity(Id, Product):-
+	not(has_trade(Id, Product));
+	not((has_trade(Id, Product, s), has_trade(Id, Product, b))).
+
+trade_route(A, B, ProductA, ProductB):-
+	has_trade(A, ProductA, s),
+	has_trade(B, ProductA, b),
+	has_trade(A, ProductB, b),
+	has_trade(B, ProductB, s),
+	not(A = B),
+	not(ProductA = ProductB).
+
+/*
+	trade_sanity(A, ProductA),
+	trade_sanity(B, ProductA),
+	trade_sanity(A, ProductB),
+	trade_sanity(B, ProductB).
+*/
+
+
 % finds trade routes - non-adjacent ports with matching buys/sells (SLOW)
 % trade_route(+Pair<pair_route>).
-trade_route(Pair):-
-	sells_price(A, ProductA, UnitA1),
-	buys_price(B, ProductA, UnitB1),
-	sells_price(B, ProductB, UnitA2),
-	buys_price(A, ProductB, UnitB2),
-	Profit is (UnitB1 - UnitA1) + (UnitB2 - UnitA2),
+trade_routes(Routes):- 
+	setof((A, B, ProductA, ProductB), trade_route(A, B, ProductA, ProductB), Todo),
+	trade_routes2(Todo, Routes).
+
+trade_routes2([], []).
+trade_routes2([H|T], Answer):-
+	(A, B, ProductA, ProductB) = H,
+	average_sale(A, ProductA, UnitA1),
+	average_offer(B, ProductA, UnitB1),
+	average_sale(B, ProductB, UnitA2),
+	average_offer(A, ProductB, UnitB2),
+	Profit is (UnitA1 - UnitB1) + (UnitA2 - UnitB2),
 	shortest_route(A, B, L),
 	RoundTrip is L * 2,
 	ProfitPerHop is Profit / RoundTrip,
-	Pair = pair_route(A, ProductA, B, ProductB, Profit, RoundTrip, ProfitPerHop).
-
-% finds all trade routes (@see trade_route), (VERY SLOW)
-% trade_routes(+Pairs<List<pair_route>>).
-trade_routes(Pairs):-
-	findall(Pair, trade_route(Pair), Pairs).
+	Pair = route(A, ProductA, B, ProductB, Profit, RoundTrip, ProfitPerHop),
+	trade_routes2(T, Partial),
+	append(Partial, [Pair], Answer).
 
 % find major space lanes (routes between class 0 / class 9 ports).
 % space_lane(+Lane).
@@ -221,8 +246,8 @@ on_any_path(A, B, Paths):-
 % finds trade routes and sorts by ProfitPerHop, descending.
 % sorted_trade_routes(-Sorted<List<pair_route>>).
 sorted_trade_routes(Sorted):-
-	trade_routes(Pairs),
-	sort(7, @>, Pairs, Sorted).
+	trade_routes(Routes),
+	sort(7, @>, Routes, Sorted).
 
 connected(A, B):- edge(A, B, _); edge(B, A, _).
 has_connect(A):- connected(A, _).
@@ -250,6 +275,14 @@ within_hops(Id, Hops, List):-
 % true if a sector has a port with at least one recorded trade.
 % has_trade(+Id).
 has_trade(Id):- trade(Id, _, _, _, _).
+
+% true if a sector has a port with at least one recorded trade for product.
+% has_trade(+Id, +Product).
+has_trade(Id, Product):- trade(Id, _, Product, _, _).
+
+% true if a sector has a port with at least one recorded trade of Type for product.
+% has_trade(+Id, +Product, +Type<b/s>).
+has_trade(Id, Product, Type):- trade(Id, Type, Product, _, _).
 
 % true if sectors A and B are adjacent and link to each other.
 % bidirectional(+A<SectorId>, +B<SectorId>).

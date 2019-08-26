@@ -1,7 +1,7 @@
 :- [data].
 
 print_route_row(R, Holds):- 
-	R = pair_route(A, ProductA, B, ProductB, ProfitUnit, RoundTrip, ProfitPerHopUnit),
+	R = route(A, ProductA, B, ProductB, ProfitUnit, RoundTrip, ProfitPerHopUnit),
 	Profit is ProfitUnit * Holds,
 	ProfitPerHop is ProfitPerHopUnit * Holds,
 	ProfitPerHop >= 0,
@@ -10,23 +10,21 @@ print_route_row(R, Holds):-
 
 print_route_foot():- writef('|=======================================================================|\n').
 
-print_route_head():-
-	writef('\nKnown Trade Routes\n'),
+print_route_head(Holds):-
+	writef('\nKnown Trade Routes (%w holds)\n', [Holds]),
 	print_route_foot(),
 	format('| ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~5+~t~| - ~|~w~11+~t~| | ~|~w~7+~t~| | ~|~w~5+~t~| | ~|~w~7+~t~| |\n', ['A', 'ProductA', 'B', 'ProductB', 'Profit', 'Hops', 'PerHop']).
 
 % prints all routes between two ports with paired buys/sells, sorted by profit per hop,
 % profit multiplied by Holds.
-% VERY, VERY SLOW.
 % print_routes(-Holds).
 print_routes(Holds):-
 	sorted_trade_routes(Sorted),
-	print_route_head(),
+	print_route_head(Holds),
 	(forall(member(P, Sorted), print_route_row(P, Holds)); true),
 	print_route_foot().
 
 % prints all routes between two ports with paired buys/sells, sorted by profit per hop.
-% VERY, VERY SLOW.
 % print_routes().
 print_routes():- print_routes(1).
 
