@@ -20,21 +20,21 @@ cp $trade_orig $trade_tmp
 echo "$trades" >> $trade_tmp
 echo "$(head -n 1 $trade_tmp && tail -n +2 $trade_tmp | sort | uniq)" > $trade_tmp
 echo " "
-echo "FOUND " $(echo "$trades" | wc -l | cut -f 1 -d ' ') " TRADES"
+echo "FOUND " $(wc -l $trade_tmp | cut -f 1 -d ' ') " TRADES"
 
 # pull ports out of initial parser output
 ports=$(echo "$out" | awk '/^PORT_RECORD.*/ { gsub(/PORT_RECORD: ?/, "", $0); print }')
 cp $port_orig $port_tmp
 echo "$ports" >> $port_tmp
 echo "$(head -n 1 $port_tmp && tail -n +2 $port_tmp | sort | uniq)" > $port_tmp
-echo "FOUND " $(echo "$ports" | wc -l | cut -f 1 -d ' ') " PORTS"
+echo "FOUND " $(wc -l $port_tmp | cut -f 1 -d ' ') " PORTS"
 
 # pull sectors out of initial parser output
 sectors=$(echo "$out" | awk '/^SECTOR_RECORD.*/ { gsub(/SECTOR_RECORD: ?/, "", $0); print }')
 cp $sector_orig $sector_tmp
 echo "$sectors" >> $sector_tmp
 echo "$(head -n 1 $sector_tmp && tail -n +2 $sector_tmp | sort | uniq)" > $sector_tmp
-echo "FOUND " $(echo "$sectors" | wc -l | cut -f 1 -d ' ') " SECTORS"
+echo "FOUND " $( wc -l $sector_tmp | cut -f 1 -d ' ') " SECTORS"
 
 # pull regions out of initial parser output
 # this is superjank but it works?
@@ -70,7 +70,7 @@ regions=$(cat $tmp_dir/tmp | awk '{ gsub(/^[[:space:]]*/, "", $0); gsub(/[[:spac
 	}' | awk '{ gsub(/^, ?/, "", $0); gsub(/,$/, "", $0); print $0 }')
 echo "$(head -n 1 $region_orig && echo "$regions" | sort | uniq)" > $region_tmp
 rm $tmp_dir/tmp
-echo "FOUND " $(echo "$regions" | wc -l | cut -f 1 -d ' ') " REGIONS"
+echo "FOUND " $(wc -l $region_tmp | cut -f 1 -d ' ') " REGIONS"
 echo "$out" | awk '/^DEBUG.*/ { print }'
 
 # pull planets out of initial parser output
@@ -80,5 +80,5 @@ planets=$(echo "$out" | awk '/^PLANET_RECORD.*/ { gsub(/PLANET_RECORD: ?/, "", $
 cp $planet_orig $planet_tmp
 echo "$planets" >> $planet_tmp
 echo "$(head -n 1 $planet_tmp && tail -n +2 $planet_tmp | sort | uniq)" > $planet_tmp
-echo "FOUND " $(echo "$planets" | wc -l | cut -f 1 -d ' ') " PLANETS"
+echo "FOUND " $( wc -l $planet_tmp | cut -f 1 -d ' ') " PLANETS"
 
