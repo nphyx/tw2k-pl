@@ -83,39 +83,15 @@ Beatings will continue until parser improves.
 Usage
 -----
 ```sh
-tw2k [options]
+tw2k --help   [topic]
+tw2k --map    <mode>  [options]
+tw2k --report <mode>  [options]
 
-Examples:
-tw2k --map global -R neato #render a map of sectors using neato
-tw2k --report pairs #print a report of known trade pairs
-
-Options:
---help      -h  boolean=_              print help
---graph     -g  atom=_                 generate a sector graph and build a dot from it
-                                         - see Map and Graph modes
---map       -m  atom=_                 generate a graph and build an svg map from it
-                                         - imples --graph
-                                         - requires graphviz installed on your system
-                                         - see Map and Graph modes
---output    -o  atom=maps/sectors.dot  set output graphviz dot file (used with --graph and --map)
---image     -i  atom=maps/sectors.svg  set output image file (used with --graph and --map)
---colors    -C  atom=normal            color mode for maps and graphs, <normal|regions>
---labels    -l  boolean=true           label sectors
---hops      -H  integer=3              hop limit for local maps
---origin    -O  integer=1              origin for local maps
---renderer  -R  atom=sfdp              graphviz image renderer to use
-                                         - used with --map
-                                         - best options are neato, fdp, and sfdp; try your luck with the others
---report    -r  atom=_                 print a report, modes:
-                                           pairs:  print pairs of adjacent ports with matching trades
-                                           routes: print all trade routes - ports with matching trades at any distance
-                                                   sorted by profit-per-hop per unit (see holds)
---holds         integer=1              when used with reporting, multiply per-unit value by number of holds
---data-dir  -d  atom=data              set the directory to load data from
-
-Map and Graph Modes:
-  global: a map of the universe with color-coded points of interest
-  local:  only render sectors within a number of hops of an origin sector (see --hops, --origin)
+for more info see:
+--help options
+--help maps
+--help graphs
+--help reports
 ```
 
 You can also use it interactively. There are a bunch of useful functions in there
