@@ -85,11 +85,11 @@ print_sector_separator(N):-
 print_sector_rows([]).
 print_sector_rows(List):-
 	writef('|'),
-	take(10, List, Head),
-	pad_list(Head, 10, ' ', Padded),
+	take(9, List, Head),
+	pad_list(Head, 9, ' ', Padded),
 	print_sector_row(Padded),
 	writef('\n'),
-	drop(10, List, Tail),
+	drop(9, List, Tail),
 	print_sector_rows(Tail).
 
 print_mapped():-
@@ -97,10 +97,10 @@ print_mapped():-
 	length(List, Len),
 	writef('\nMapped Sectors (%w)\n', [Len]),
 	writef('+'),
-	print_sector_separator(10),
+	print_sector_separator(9),
 	print_sector_rows(List),
 	writef('+'),
-	print_sector_separator(10).
+	print_sector_separator(9).
 
 print_unmapped():-
 	unmapped_sectors(List),
@@ -108,10 +108,10 @@ print_unmapped():-
 	writef('\nUnmapped Sectors (%w)\n', [Len]),
 	Len > 0,
 	writef('+'),
-	print_sector_separator(10),
+	print_sector_separator(9),
 	print_sector_rows(List),
 	writef('+'),
-	print_sector_separator(10).
+	print_sector_separator(9).
 
 % print sectors which are known to link to existing sectors, but unmapped
 % print_boundary().
@@ -123,7 +123,22 @@ print_boundary():-
 	writef('\nBoundary Sectors (%w)\n', [Len]),
 	Len > 0,
 	writes('+'),
-	print_sector_separator(10),
+	print_sector_separator(9),
 	print_sector_rows(Borders),
 	writes('+'),
-	print_sector_separator(10).
+	print_sector_separator(9).
+
+% print sectors which are completely unknown
+% print_boundary().
+print_unknown():-
+	all_known_sectors(Known),
+	all_sectors(All),
+	subtract(All, Known, List),
+	length(List, Len),
+	writef('\nUnknown Sectors (%w)\n', [Len]),
+	Len > 0,
+	writes('+'),
+	print_sector_separator(9),
+	print_sector_rows(List),
+	writes('+'),
+	print_sector_separator(9).

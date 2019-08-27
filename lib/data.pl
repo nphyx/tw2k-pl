@@ -345,7 +345,15 @@ all_known_sectors(List):-
 mapped_sectors(List):-
 	setof(Id, mapped(Id), List).
 
+all_sectors(List):- numlist(1, 999, List). 
+
 unmapped_sectors(List):-
 	mapped_sectors(Mapped),
-	numlist(1, 999, All),
+	all_sectors(All),
 	subtract(All, Mapped, List).
+
+all_planets(Planets):-
+	findall(planet(SectorId, Class, Level, Name, Owner), planet(SectorId, Class, Level, Name, Owner), Planets).
+
+planets_in_sector_list(SectorList, Planets):-
+	(setof(planet(SectorId, Class, Level, Name, Owner), (member(SectorId, SectorList), planet(SectorId, Class, Level, Name, Owner)), Planets); Planets = []).

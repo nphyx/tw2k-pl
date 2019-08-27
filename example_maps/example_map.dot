@@ -1,6 +1,6 @@
 digraph "Local Map for Sector 1" {
 graph [overlap=false fontname="Fira Sans" splines=true bgcolor="#111111" pack=20 packmode="node"];
-node [shape=circle fontname="Fira Sans" fontcolor="#eeeeee" fillcolor="#111111" fontsize=10 style=filled width=0 height=0 color="#eeeeee" regular=true];
+node [shape=circle fontname="Fira Sans" fontcolor="#eeeeee" fillcolor="#111111" fontsize=10 style=filled width=0.35 height=0.35 color="#eeeeee" regular=true fixedsize=true];
 edge [color="#bbbbbb" fontname="Fira Sans" fontsize=10 fontcolor="#88ee88"];
 
 1 [width="1.25" height = "1.25" label="1\nSol\nSSS\n(0)" color="#fff688" fillcolor="#aa9955" style="filled, bold" shape="tripleoctagon" tooltip="special spaceport"];
@@ -9,8 +9,7 @@ edge [color="#bbbbbb" fontname="Fira Sans" fontsize=10 fontcolor="#88ee88"];
 
 
 2 [width="0.5" height = "0.5" label="2" color="#fff688" fillcolor="#222222" style="filled, bold" shape="circle" tooltip="empty sector"];
-2 -> { 8 10 } [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#fff688" penwidth="1" weight="10" tooltip="uncharted"];
-2 -> { 3 7 9 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#fff688" penwidth="1" weight="2" tooltip="bidirectional link"];
+2 -> { 3 7 8 9 10 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#fff688" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
 3 [width="0.5" height = "0.5" label="3" color="#fff688" fillcolor="#222222" style="filled, bold" shape="circle" tooltip="empty sector"];
@@ -26,26 +25,35 @@ edge [color="#bbbbbb" fontname="Fira Sans" fontsize=10 fontcolor="#88ee88"];
 
 
 6 [width="0.5" height = "0.5" label="6" color="#fff688" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-6 -> 168 [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#fff688" penwidth="1" weight="10" tooltip="uncharted"];
+6 -> 168 [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#fff688" penwidth="1" weight="10" tooltip="uncharted"];
 6 -> { 7 225 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#fff688" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
 7 [width="1.25" height = "1.25" label="7\nNew Ibn Daud\nBBS\n(1)" color="#fff688" fillcolor="#115511" style="filled, bold" shape="Mdiamond" tooltip="spaceport"];
-7 -> { 8 180 } [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#fff688" penwidth="1" weight="10" tooltip="uncharted"];
+7 -> 180 [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#fff688" penwidth="1" weight="10" tooltip="uncharted"];
 7 -> 551 [len="2.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#8888bb" penwidth="3" weight="3" tooltip="space lane"];
+7 -> 8 [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#fff688" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
-8 [shape=plaintext color="#111111" width="0.25" height="0.25" label="8" tooltip="uncharted sector"];
+8 [width="1.25" height = "1.25" label="8\nKnorbes II\nSBS\n(5)" color="#fff688" fillcolor="#222222" style="filled" shape="Mdiamond" tooltip="spaceport"];
+8 -> { 568 818 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#fff688" penwidth="1" weight="2" tooltip="bidirectional link"];
+
+
 9 [width="0.5" height = "0.5" label="9" color="#fff688" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-9 -> { 10 67 934 961 } [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#fff688" penwidth="1" weight="10" tooltip="uncharted"];
+9 -> { 67 934 961 } [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#fff688" penwidth="1" weight="10" tooltip="uncharted"];
+9 -> 10 [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#fff688" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
-10 [shape=plaintext color="#111111" width="0.25" height="0.25" label="10" tooltip="uncharted sector"];
-67 [shape=plaintext color="#111111" width="0.25" height="0.25" label="67" tooltip="uncharted sector"];
-69 [width="1.25" height = "1.25" label="69\nPannet\nBSB\n(2)" color="#ccccff" fillcolor="#222222" style="filled, bold" shape="Mdiamond" tooltip="spaceport"];
-69 -> 270 [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ccccff" penwidth="1" weight="10" tooltip="uncharted"];
-69 -> { 571 679 } [len="5.0" label="" dir="both" arrowhead="curve" arrowtail="icurve" style="dashed" color="#ccccff" penwidth="1" weight="3" tooltip="one way"];
-69 -> { 111 219 707 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#ccccff" penwidth="1" weight="2" tooltip="bidirectional link"];
+10 [width="0.5" height = "0.5" label="10" color="#fff688" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
+10 -> 444 [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#fff688" penwidth="1" weight="10" tooltip="uncharted"];
+10 -> 722 [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#fff688" penwidth="1" weight="2" tooltip="bidirectional link"];
+
+
+67 [shape=plaintext color="#111111" width="0.35" height="0.35" label="67" tooltip="uncharted sector"];
+69 [width="1.25" height = "1.25" label="69\nPannet\nBSB\n(2)" color="#ccffff" fillcolor="#222222" style="filled, bold" shape="Mdiamond" tooltip="spaceport"];
+69 -> 270 [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ccffff" penwidth="1" weight="10" tooltip="uncharted"];
+69 -> { 571 679 } [len="5.0" label="" dir="both" arrowhead="curve" arrowtail="icurve" style="dashed" color="#ccffff" penwidth="1" weight="3" tooltip="one way"];
+69 -> { 111 219 707 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#ccffff" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
 75 [width="0.5" height = "0.5" label="75" color="#662299" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
@@ -53,95 +61,116 @@ edge [color="#bbbbbb" fontname="Fira Sans" fontsize=10 fontcolor="#88ee88"];
 75 -> { 267 305 982 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#662299" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
-81 [width="0.5" height = "0.5" label="81" color="#ffccff" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-81 -> 207 [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ffccff" penwidth="1" weight="10" tooltip="uncharted"];
-81 -> { 205 686 873 894 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#ffccff" penwidth="1" weight="2" tooltip="bidirectional link"];
+81 [width="0.5" height = "0.5" label="81" color="#ffffff" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
+81 -> 207 [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ffffff" penwidth="1" weight="10" tooltip="uncharted"];
+81 -> { 205 686 873 894 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#ffffff" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
-144 [width="0.5" height = "0.5" label="144" color="#cccccc" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-144 -> { 228 279 964 } [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#cccccc" penwidth="1" weight="10" tooltip="uncharted"];
-144 -> { 551 848 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#cccccc" penwidth="1" weight="2" tooltip="bidirectional link"];
+144 [width="0.5" height = "0.5" label="144" color="#ffcccc" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
+144 -> { 228 279 964 } [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ffcccc" penwidth="1" weight="10" tooltip="uncharted"];
+144 -> { 551 848 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#ffcccc" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
 146 [width="0.5" height = "0.5" label="146" color="#662299" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-146 -> { 197 723 842 988 } [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#662299" penwidth="1" weight="10" tooltip="uncharted"];
+146 -> { 197 723 842 988 } [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#662299" penwidth="1" weight="10" tooltip="uncharted"];
 
 
-159 [width="1.25" height = "1.25" label="159\nLunus Annex\nBBS\n(1)" color="#ccffff" fillcolor="#222222" style="filled" shape="Mdiamond" tooltip="spaceport"];
-159 -> 448 [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ccffff" penwidth="1" weight="10" tooltip="uncharted"];
-159 -> 559 [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#ccffff" penwidth="1" weight="2" tooltip="bidirectional link"];
+159 [width="1.25" height = "1.25" label="159\nLunus Annex\nBBS\n(1)" color="#cccccc" fillcolor="#222222" style="filled" shape="Mdiamond" tooltip="spaceport"];
+159 -> 448 [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#cccccc" penwidth="1" weight="10" tooltip="uncharted"];
+159 -> 559 [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#cccccc" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
-168 [shape=plaintext color="#111111" width="0.25" height="0.25" label="168" tooltip="uncharted sector"];
-180 [shape=plaintext color="#111111" width="0.25" height="0.25" label="180" tooltip="uncharted sector"];
-197 [shape=plaintext color="#111111" width="0.25" height="0.25" label="197" tooltip="uncharted sector"];
+168 [shape=plaintext color="#111111" width="0.35" height="0.35" label="168" tooltip="uncharted sector"];
+180 [shape=plaintext color="#111111" width="0.35" height="0.35" label="180" tooltip="uncharted sector"];
+197 [shape=plaintext color="#111111" width="0.35" height="0.35" label="197" tooltip="uncharted sector"];
 225 [width="0.5" height = "0.5" label="225" color="#cccccc" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-225 -> 823 [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#cccccc" penwidth="1" weight="10" tooltip="uncharted"];
+225 -> 823 [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#cccccc" penwidth="1" weight="10" tooltip="uncharted"];
 225 -> 393 [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#cccccc" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
-227 [shape=plaintext color="#111111" width="0.25" height="0.25" label="227" tooltip="uncharted sector"];
-344 [shape=plaintext color="#111111" width="0.25" height="0.25" label="344" tooltip="uncharted sector"];
+227 [shape=plaintext color="#111111" width="0.35" height="0.35" label="227" tooltip="uncharted sector"];
+344 [shape=plaintext color="#111111" width="0.35" height="0.35" label="344" tooltip="uncharted sector"];
 388 [width="0.5" height = "0.5" label="388" color="#ccccff" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-388 -> { 644 718 903 } [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ccccff" penwidth="1" weight="10" tooltip="uncharted"];
+388 -> { 644 903 } [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ccccff" penwidth="1" weight="10" tooltip="uncharted"];
+388 -> 718 [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#ccccff" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
 393 [width="0.5" height = "0.5" label="393" color="#cccccc" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-393 -> 784 [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#cccccc" penwidth="1" weight="10" tooltip="uncharted"];
+393 -> 784 [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#cccccc" penwidth="1" weight="10" tooltip="uncharted"];
 
 
-515 [width="1.25" height = "1.25" label="515\nAlaanoutr\nBBB\n(8)" color="#ffffff" fillcolor="#222222" style="filled" shape="Mdiamond" tooltip="spaceport"];
-515 -> 584 [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ffffff" penwidth="1" weight="10" tooltip="uncharted"];
-515 -> { 159 952 } [len="5.0" label="" dir="both" arrowhead="curve" arrowtail="icurve" style="dashed" color="#ffffff" penwidth="1" weight="3" tooltip="one way"];
+444 [shape=plaintext color="#111111" width="0.35" height="0.35" label="444" tooltip="uncharted sector"];
+515 [width="1.25" height = "1.25" label="515\nAlaanoutr\nBBB\n(8)" color="#ccffcc" fillcolor="#222222" style="filled" shape="Mdiamond" tooltip="spaceport"];
+515 -> 584 [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ccffcc" penwidth="1" weight="10" tooltip="uncharted"];
+515 -> { 159 952 } [len="5.0" label="" dir="both" arrowhead="curve" arrowtail="icurve" style="dashed" color="#ccffcc" penwidth="1" weight="3" tooltip="one way"];
 
 
-551 [width="1.25" height = "1.25" label="551\nPannet Outpost\nBBS\n(1)" color="#ccffcc" fillcolor="#222222" style="filled, bold" shape="Mdiamond" tooltip="spaceport"];
-551 -> 75 [len="5.0" label="" dir="both" arrowhead="curve" arrowtail="icurve" style="dashed,bold" color="#ccffcc" penwidth="3" weight="3" tooltip="one way space lane"];
-551 -> { 596 728 833 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#ccffcc" penwidth="1" weight="2" tooltip="bidirectional link"];
+551 [width="1.25" height = "1.25" label="551\nPannet Outpost\nBBS\n(1)" color="#ffffcc" fillcolor="#222222" style="filled, bold" shape="Mdiamond" tooltip="spaceport"];
+551 -> 75 [len="5.0" label="" dir="both" arrowhead="curve" arrowtail="icurve" style="dashed,bold" color="#ffffcc" penwidth="3" weight="3" tooltip="one way space lane"];
+551 -> { 596 728 833 } [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#ffffcc" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
-584 [shape=plaintext color="#111111" width="0.25" height="0.25" label="584" tooltip="uncharted sector"];
+568 [width="0.5" height = "0.5" label="568" color="#cccccc" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
+568 -> { 459 791 } [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#cccccc" penwidth="1" weight="10" tooltip="uncharted"];
+568 -> 907 [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#cccccc" penwidth="1" weight="2" tooltip="bidirectional link"];
+
+
+584 [shape=plaintext color="#111111" width="0.35" height="0.35" label="584" tooltip="uncharted sector"];
 596 [width="0.5" height = "0.5" label="596" color="#662299" fillcolor="#773333" style="filled" shape="circle" tooltip="empty sector"];
 
 
-644 [shape=plaintext color="#111111" width="0.25" height="0.25" label="644" tooltip="uncharted sector"];
+644 [shape=plaintext color="#111111" width="0.35" height="0.35" label="644" tooltip="uncharted sector"];
 686 [width="0.5" height = "0.5" label="686" color="#662299" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-686 -> { 227 344 990 } [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#662299" penwidth="1" weight="10" tooltip="uncharted"];
+686 -> { 227 344 990 } [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#662299" penwidth="1" weight="10" tooltip="uncharted"];
 
 
-707 [width="0.5" height = "0.5" label="707" color="#cccccc" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-707 -> 830 [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#cccccc" penwidth="1" weight="2" tooltip="bidirectional link"];
+707 [width="0.5" height = "0.5" label="707" color="#ffcccc" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
+707 -> 830 [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#ffcccc" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
-718 [shape=plaintext color="#111111" width="0.25" height="0.25" label="718" tooltip="uncharted sector"];
-723 [shape=plaintext color="#111111" width="0.25" height="0.25" label="723" tooltip="uncharted sector"];
-728 [width="0.5" height = "0.5" label="728" color="#ccffcc" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-728 -> { 203 343 } [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ccffcc" penwidth="1" weight="10" tooltip="uncharted"];
+718 [width="0.5" height = "0.5" label="718" color="#ccccff" fillcolor="#222222" style="filled, bold" shape="circle" tooltip="empty sector"];
+718 -> { 92 519 529 599 } [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ccccff" penwidth="1" weight="10" tooltip="uncharted"];
 
 
-823 [shape=plaintext color="#111111" width="0.25" height="0.25" label="823" tooltip="uncharted sector"];
-830 [width="0.5" height = "0.5" label="830" color="#cccccc" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-830 -> 514 [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#cccccc" penwidth="1" weight="10" tooltip="uncharted"];
+722 [width="0.5" height = "0.5" label="722" color="#cccccc" fillcolor="#222222" style="filled, bold" shape="circle" tooltip="empty sector"];
+722 -> { 18 498 } [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#cccccc" penwidth="1" weight="10" tooltip="uncharted"];
+722 -> 810 [len="5.0" label="" dir="both" arrowhead="curve" arrowtail="icurve" style="dashed" color="#cccccc" penwidth="1" weight="3" tooltip="one way"];
+722 -> 886 [len="3.0" label="" dir="both" arrowhead="none" arrowtail="none" style="solid" color="#cccccc" penwidth="1" weight="2" tooltip="bidirectional link"];
 
 
-833 [width="0.5" height = "0.5" label="833" color="#ffffff" fillcolor="#222222" style="filled, bold" shape="circle" tooltip="empty sector"];
-833 -> { 164 431 447 992 } [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ffffff" penwidth="1" weight="10" tooltip="uncharted"];
+723 [shape=plaintext color="#111111" width="0.35" height="0.35" label="723" tooltip="uncharted sector"];
+728 [width="0.5" height = "0.5" label="728" color="#ffffcc" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
+728 -> { 203 343 } [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ffffcc" penwidth="1" weight="10" tooltip="uncharted"];
 
 
-842 [shape=plaintext color="#111111" width="0.25" height="0.25" label="842" tooltip="uncharted sector"];
+818 [width="1.25" height = "1.25" label="818\nGulguthra Annex\nBBS\n(1)" color="#662299" fillcolor="#222222" style="filled" shape="Mdiamond" tooltip="spaceport"];
+818 -> 659 [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#662299" penwidth="1" weight="10" tooltip="uncharted"];
+818 -> 421 [len="5.0" label="" dir="both" arrowhead="curve" arrowtail="icurve" style="dashed" color="#662299" penwidth="1" weight="3" tooltip="one way"];
+
+
+823 [shape=plaintext color="#111111" width="0.35" height="0.35" label="823" tooltip="uncharted sector"];
+830 [width="0.5" height = "0.5" label="830" color="#ffcccc" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
+830 -> 514 [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ffcccc" penwidth="1" weight="10" tooltip="uncharted"];
+
+
+833 [width="0.5" height = "0.5" label="833" color="#ccffcc" fillcolor="#222222" style="filled, bold" shape="circle" tooltip="empty sector"];
+833 -> { 164 431 447 992 } [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#ccffcc" penwidth="1" weight="10" tooltip="uncharted"];
+
+
+842 [shape=plaintext color="#111111" width="0.35" height="0.35" label="842" tooltip="uncharted sector"];
 892 [width="0.5" height = "0.5" label="892" color="#662299" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
-892 -> 944 [len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#662299" penwidth="1" weight="10" tooltip="uncharted"];
+892 -> 944 [len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="#662299" penwidth="1" weight="10" tooltip="uncharted"];
 
 
-903 [shape=plaintext color="#111111" width="0.25" height="0.25" label="903" tooltip="uncharted sector"];
-934 [shape=plaintext color="#111111" width="0.25" height="0.25" label="934" tooltip="uncharted sector"];
-944 [shape=plaintext color="#111111" width="0.25" height="0.25" label="944" tooltip="uncharted sector"];
-952 [width="0.5" height = "0.5" label="952" color="#ffccff" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
+903 [shape=plaintext color="#111111" width="0.35" height="0.35" label="903" tooltip="uncharted sector"];
+934 [shape=plaintext color="#111111" width="0.35" height="0.35" label="934" tooltip="uncharted sector"];
+944 [shape=plaintext color="#111111" width="0.35" height="0.35" label="944" tooltip="uncharted sector"];
+952 [width="0.5" height = "0.5" label="952" color="#ffffff" fillcolor="#222222" style="filled" shape="circle" tooltip="empty sector"];
 
 
-961 [shape=plaintext color="#111111" width="0.25" height="0.25" label="961" tooltip="uncharted sector"];
-988 [shape=plaintext color="#111111" width="0.25" height="0.25" label="988" tooltip="uncharted sector"];
-990 [shape=plaintext color="#111111" width="0.25" height="0.25" label="990" tooltip="uncharted sector"];
+961 [shape=plaintext color="#111111" width="0.35" height="0.35" label="961" tooltip="uncharted sector"];
+988 [shape=plaintext color="#111111" width="0.35" height="0.35" label="988" tooltip="uncharted sector"];
+990 [shape=plaintext color="#111111" width="0.35" height="0.35" label="990" tooltip="uncharted sector"];
 "Terra" [shape=circle fontsize=4 fixedsize=true width="0.25" height="0.25" margin="0,0" fillcolor="#558f6f" color="#558f6f" fontcolor="#eeeeee" label="Terra\n(M)", tooltip="planet"];
 "Terra" -> "1" [style=tapered dir=forward arrowhead=none arrowtail=none len="0.1" weight="10000" penwidth=4 color="#558f6f", tooltip="planet link"];
 

@@ -85,7 +85,7 @@ writes_paired_edges(SectorId, Destinations):-
 writes_uncharted_edges(_, [], _).
 writes_uncharted_edges(SectorId, Destinations, Color):-
 	writes_edge_links(SectorId, Destinations),
-	writef('[len="0.05" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="%w" penwidth="1" weight="10" tooltip="uncharted"];\n', [Color]).
+	writef('[len="0.15" label="" dir="both" arrowhead="odot" arrowtail="none" style="dotted" color="%w" penwidth="1" weight="10" tooltip="uncharted"];\n', [Color]).
 
 writes_space_lane_edges(_, [], _).
 writes_space_lane_edges(SectorId, Destinations, Color):-
@@ -182,7 +182,7 @@ sector_style(Id, Style):-
 writes_uncharted_sector(Id, WithLabel):-
 	(WithLabel -> Label = Id; Label = ""),
 	writef(
-		'%w [shape=plaintext color="#111111" width="0.25" height="0.25" label="%w" tooltip="uncharted sector"];\n',
+		'%w [shape=plaintext color="#111111" width="0.35" height="0.35" label="%w" tooltip="uncharted sector"];\n',
 		[Id, Label]
 	).
 
@@ -254,12 +254,12 @@ writes_planet(Planet, WithLabel):-
 writes_graph_header(Name):-
 	writes(['digraph "', Name, '" {']),
 	writes(['graph [overlap=false fontname="Fira Sans" splines=true bgcolor="#111111" pack=20 packmode="node"];']),
-	writes(['node [shape=circle fontname="Fira Sans" fontcolor="#eeeeee" fillcolor="#111111" fontsize=10 style=filled width=0 height=0 color="#eeeeee" regular=true];']),
+	writes(['node [shape=circle fontname="Fira Sans" fontcolor="#eeeeee" fillcolor="#111111" fontsize=10 style=filled width=0.35 height=0.35 color="#eeeeee" regular=true fixedsize=true];']),
 	writes(['edge [color="#bbbbbb" fontname="Fira Sans" fontsize=10 fontcolor="#88ee88"];\n']).
 
 map_sectors(FName, WithLabels, ColorMode):- 
 	all_known_sectors(SectorList),
-	findall(planet(SectorId, Class, Level, Name, Owner), planet(SectorId, Class, Level, Name, Owner), Planets),
+	all_planets(Planets),
 	space_lanes(Lanes),
 	tell(FName),
 	swritef(Name, 'Map of All Sectors'), 
@@ -278,15 +278,12 @@ map_sectors_hidden(FName):- map_sectors(FName, false, regions).
 map_local(FName, Origin, Warps, WithLabels, ColorMode):- 
 	writef("Limiting to origin %w within warps %w\n", [Origin, Warps]),
 	within_warps(Origin, Warps, SectorList),
-	setof(planet(SectorId, Class, Level, Name, Owner), (member(SectorId, SectorList), planet(SectorId, Class, Level, Name, Owner)), Planets),
 	space_lanes(Lanes),
 	tell(FName),
 	swritef(Name, 'Local Map for Sector %w', [Origin]), 
 	writes_graph_header(Name),
 	forall(member(Id, SectorList), writes_sector(Id, Lanes, WithLabels, ColorMode)),
+	planets_in_sector_list(SectorList, Planets),
 	forall(member(Planet, Planets), writes_planet(Planet, WithLabels)),
 	writes(['}']),
 	told.
-
-map_local(FName, Origin, Warps, WithLabels):- map_local(FName, Origin, Warps, WithLabels, normal).
-map_local(FName, Origin, Warps):- map_local(FName, Origin, Warps, true).
