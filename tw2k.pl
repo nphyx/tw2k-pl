@@ -1,11 +1,9 @@
 % TW2K: a utility program for TradeWars 2002
 ?- use_module(library(optparse)).
-:- [lib/dynamics].
-:- [lib/util].
-:- [lib/storage].
-:- [lib/data].
-:- [lib/reports].
-:- [lib/mapping].
+?- use_module(lib/maps/mod).
+?- use_module(lib/reports/mod).
+?- use_module(lib/storage).
+?- use_module(lib/util).
 
 main:-
 	OptSpec = [
@@ -140,7 +138,7 @@ main:-
 						swritef(Ig, '%w/%w', [MapDir, If]), atom_string(I, Ig),
 						swritef(Cmd, 'dot -Tsvg -K%w -o %w %w', [GvCmd, I, O]),
 						writef('\n-=-=-= Generating Universe Graph ::: %w =-=-=-\n', [O]),
-						map_sectors(O, Labels, Colors),
+						map_universe(O, Labels, Colors),
 						writef('Done.\n\n-=-=-=  Generating Universe Map  ::: %w =-=-=-\n', [I]),
 						shell(Cmd),
 						writef('Done.\n\n'),
@@ -181,7 +179,7 @@ main:-
 						),
 						swritef(Og, '%w/%w', [MapDir, Of]), atom_string(O, Og),
 						writef('\n-=-=-= Generating Universe Graph ::: %w =-=-=-\n', [O]),
-						Graph = global, map_sectors(O, Labels, Colors),
+						Graph = global, map_universe(O, Labels, Colors),
 						halt
 					);
 					(

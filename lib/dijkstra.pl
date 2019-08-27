@@ -1,11 +1,10 @@
 /*
  * Borrowed from Rossetta Code.
  */
+?- use_module(util).
 :-dynamic
   rpath/2.      % A reversed path
 
-:-dynamic
-  edge/3.       % supplied later
 :-dynamic
 	path/3.       % supplied by data.pl
 

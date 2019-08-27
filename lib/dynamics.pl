@@ -1,3 +1,4 @@
+:- module(dynamics, [planet/5, port/6, trade/5, sector/2, region/2, pair_trade/4, pair_route/4]).
 % planet(-SectorId, -PlanetClass, -CitadelLevel, -PlanetName, -PlanetOwner).
 :-dynamic planet/5.
 
@@ -12,3 +13,9 @@
 
 % region(-Name, -List[-sector, ...]).
 :-dynamic region/2.
+
+% pair_trade(-SectorA, -SectorB, -ProductA, -ProductB).
+:-dynamic pair_trade/4.
+
+% pair_route(-SectorA, -SectorB, -ProductA, -ProductB).
+:-dynamic pair_route/4.

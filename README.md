@@ -51,15 +51,13 @@ $ cp -r example_data data
 ```
 
 3) Fill in as much data s you have in the CSVs - see [About Data](#about-data) and [Importing Data](#importing-data)
-4) Optionally, build the executable:
+4) Make the executable
 ```
-$ ./build.sh
+$ make
 ```
 5) Use how you like (see [Usage](#usage))
 
 If you don't build an executable, you can run as a script with `swipl -s tw2k.pl -g main [options]`
-
-
 
 Usage
 -----

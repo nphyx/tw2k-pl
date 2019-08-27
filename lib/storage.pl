@@ -1,5 +1,6 @@
-:- [dynamics].
-:- [util].
+:- module(storage, []).
+?- use_module(dynamics).
+?- use_module(util).
 :- use_module(library(csv)).
 
 row_to_list(Row, List):-
@@ -60,6 +61,7 @@ import_db(DataDir):-
 	import_ports(DataDir),
 	import_regions(DataDir),
 	writef("::: Done\n").
+:- export(import_db/1).
 
 import_db:- import_db('data').
-
+:- export(import_db/0).
