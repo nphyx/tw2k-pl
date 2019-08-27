@@ -3,9 +3,9 @@ TW2K Prolog DB
 A program that reads CSV files of data dumped from TradeWars2002.  It generates reports about
 good trade pairs, trade routes, and does all kinds of other nifty logical reasoning stuff.
 
--[example trade pair report](example_output/report_pairs.md)
--[example trade route report](example_output/report_routes.md)
--[example trans-warp trade report](example_output/report_transroutes.md)
+- [example trade pair report](example_output/report_pairs.md)
+- [example trade route report](example_output/report_routes.md)
+- [example trans-warp trade report](example_output/report_transroutes.md)
 
 It also makes fancy maps, like these:
 
