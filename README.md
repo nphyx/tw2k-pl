@@ -9,10 +9,10 @@ good trade pairs, trade routes, and does all kinds of other nifty logical reason
 
 It also makes fancy maps, like these:
 
-####A local map of Sol and surrounding sectors within 3 warps
+#### A local map of Sol and surrounding sectors within 3 warps
 <img style="display:inline;" src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_output/example_map.svg?sanitize=true" width="40%" height="auto">
 
-####A map of the whole known universe with labels hidden (taken from a dataset of ~300 sectors)
+#### A map of the whole known universe with labels hidden (taken from a dataset of ~300 sectors)
 <img style="display:inline;" src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_output/example_secret_map.svg?sanitize=true" width="40%" height="auto">
 
 See [Map Legend](#map-legend)
@@ -98,7 +98,7 @@ See the source code for documentation.
 Map Legend
 ----------
 
-####Shapes:
+#### Shapes:
 
 - octagon: sector with a class 0 or class 9 port
 - diamond: sector with a port
@@ -108,7 +108,7 @@ Map Legend
 - tiny, solid-colored circle: planet
 - no border: an unmapped, but known, sector
 
-####Lines:
+#### Lines:
 
 - blue, solid, bold: major space lane (connects class 9 / class 0 ports)
 - dashed, bold, diamond heads: link between trade pairs
@@ -117,13 +117,13 @@ Map Legend
 - solid, tapered: points from a planet to its home sector
 - dotted: links to a known but unexplored sector
 
-####Border colors:
+#### Border colors:
 - yellow: Federation Space
 - red: Ferrengi Empire
 - dark purple: unexplored space
 - others: chosen randomly according to region name
 
-####Background colors (normal mode):
+#### Background colors (normal mode):
 
 - yellow: Sol system
 - light gray: Stargate Alpha 1
