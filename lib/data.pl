@@ -249,7 +249,7 @@ trans_routes2(FuelPrice, Holds, [H|T], Answer):-
 	FuelCost is RoundTrip * 3,
 	NetHolds is Holds - FuelCost,
 	Profit is ((UnitA1 - UnitB1) * NetHolds) + ((UnitA2 - UnitB2) * (NetHolds / 2)) - (FuelCost * FuelPrice),
-	ProfitPerTurn is Profit / 3,
+	ProfitPerTurn is Profit / 4,
 	Pair = troute(A, ProductA, B, ProductB, Profit, ProfitPerTurn, FuelCost),
 	trans_routes2(FuelPrice, Holds, T, Partial),
 	append(Partial, [Pair], Answer).
