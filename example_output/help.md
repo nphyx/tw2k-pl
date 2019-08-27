@@ -36,7 +36,6 @@ Options:
 
 Examples:
 tw2k --map global -R neato #render a map of sectors using neato
-tw2k --report pairs #print a report of known trade pairs
 
 
                       -=-=-=-= Map and Graph Modes =-=-=-=-                     
@@ -66,7 +65,6 @@ tw2k --report pairs #print a report of known trade pairs
 |         :                         normal     : color points of interest      |
 |         :                         region     : color by region               |
 +------------------------------------------------------------------------------+
-
 
 
                          -=-=-=-= Report Modes =-=-=-=-                         
@@ -100,5 +98,4 @@ tw2k --report pairs #print a report of known trade pairs
 |          : you want useful results.                                          |
 | options  : --holds <number>  calculates total profit for full holds.         |
 +------------------------------------------------------------------------------+
-
 ```

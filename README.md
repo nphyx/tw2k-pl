@@ -3,9 +3,9 @@ TW2K Prolog DB
 A program that reads CSV files of data dumped from TradeWars2002.  It generates reports about
 good trade pairs, trade routes, and does all kinds of other nifty logical reasoning stuff.
 
-[example trade pair report](example_output/report_pairs.md)
-[example trade route report](example_output/report_routes.md)
-[example trans-warp trade report](example_output/report_transroutes.md)
+-[example trade pair report](example_output/report_pairs.md)
+-[example trade route report](example_output/report_routes.md)
+-[example trans-warp trade report](example_output/report_transroutes.md)
 
 It also makes fancy maps, like these:
 
@@ -86,6 +86,8 @@ Beatings will continue until parser improves.
 
 Usage
 -----
+See [help output](example_output/help.md) for full help text.
+
 ```sh
 tw2k --help   [topic]
 tw2k --map    <mode>  [options]
@@ -101,7 +103,7 @@ for more info see:
 You can also use it interactively. There are a bunch of useful functions in there
 that don't have equivalent shell scripts.
 ```sh
-$ swipl -s tw2k.pl
+$ tw2k --interactive
 ```
 
 Examples:

@@ -30,7 +30,7 @@ $2 !~ /^( [[:digit:]|[:alpha:]]|\-)/{ print $1 }' > example_output/report_transr
 echo '# Help Output from TW2K' > example_output/help.md
 echo '```sh' >> example_output/help.md
 ./tw2k --help >> example_output/help.md
-./tw2k --help options | tail -n +7 >> example_output/help.md
-./tw2k --help maps | tail -n +7 >> example_output/help.md
-./tw2k --help reports | tail -n +7 >> example_output/help.md
+./tw2k --help options | tail -n +7 | head -n -1 >> example_output/help.md
+./tw2k --help maps | tail -n +7 | head -n -1 >> example_output/help.md
+./tw2k --help reports | tail -n +7 | head -n -1 >> example_output/help.md
 echo '```' >> example_output/help.md

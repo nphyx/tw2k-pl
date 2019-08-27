@@ -21,7 +21,7 @@ print_route_head(Holds):-
 		'| ~|~w~3+~t~| - ~|~w~9+~t~| | ~|~w~3+~t~| - ~|~w~9+~t~| | ~|~w~6+~t~| | ~|~w~3+~t~| | ~|~w~6+~t~| | ~|~w~3+~t~| | ~|~w~6+~t~| |\n',
 		['A', 'ProductA', 'B', 'ProductB', 'Profit', 'Wrp', 'PerWrp', 'Trn', 'PerTrn']
 	),
-	writef('|-----------------+-----------------+--------+-----+--------+-----+--------|\n').
+	writef('|-----------------|-----------------|--------|-----|--------|-----|--------|\n').
 
 % prints all routes between two ports with paired buys/sells, sorted by profit per turn,
 % profit multiplied by Holds.
@@ -76,7 +76,7 @@ print_pairs_head():-
 	writef('\nKnown Trade Pairs\n'),
 	print_pairs_foot(),
 	format(F, ['A', 'B', 'ProductA', 'ProductB']),
-	writef('|-------+-------+-------------+-------------|\n').
+	writef('|-------|-------|-------------|-------------|\n').
 
 print_pairs_foot():-
 	writef('=============================================\n').
@@ -104,7 +104,7 @@ print_sector_row([H|T]):-
 print_sector_separator(0):- writef('\n').
 print_sector_separator(N):-
 	N > 0,
-	writef('-------+'),
+	writef('-------|'),
 	Next is N - 1,
 	print_sector_separator(Next).
 
@@ -122,10 +122,10 @@ print_mapped():-
 	mapped_sectors(List),
 	length(List, Len),
 	writef('\nMapped Sectors (%w)\n', [Len]),
-	writef('+'),
+	writef('|'),
 	print_sector_separator(9),
 	print_sector_rows(List),
-	writef('+'),
+	writef('|'),
 	print_sector_separator(9).
 
 print_unmapped():-
@@ -133,10 +133,10 @@ print_unmapped():-
 	length(List, Len),
 	writef('\nUnmapped Sectors (%w)\n', [Len]),
 	Len > 0,
-	writef('+'),
+	writef('|'),
 	print_sector_separator(9),
 	print_sector_rows(List),
-	writef('+'),
+	writef('|'),
 	print_sector_separator(9).
 
 % print sectors which are known to link to existing sectors, but unmapped
@@ -148,10 +148,10 @@ print_boundary():-
 	length(Borders, Len),
 	writef('\nBoundary Sectors (%w)\n', [Len]),
 	Len > 0,
-	writes('+'),
+	writes('|'),
 	print_sector_separator(9),
 	print_sector_rows(Borders),
-	writes('+'),
+	writes('|'),
 	print_sector_separator(9).
 
 % print sectors which are completely unknown
@@ -163,8 +163,8 @@ print_unknown():-
 	length(List, Len),
 	writef('\nUnknown Sectors (%w)\n', [Len]),
 	Len > 0,
-	writes('+'),
+	writes('|'),
 	print_sector_separator(9),
 	print_sector_rows(List),
-	writes('+'),
+	writes('|'),
 	print_sector_separator(9).
