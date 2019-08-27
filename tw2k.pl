@@ -193,7 +193,7 @@ main:-
 		( % report mode
 			(member(report(Report), Args), not(var(Report))),
 			(
-				Supported = [pairs, routes, mapped, unmapped, boundary],
+				Supported = [pairs, routes, mapped, unmapped, boundary, transroutes],
 				member(Report, Supported), (
 					member(data_dir(Data), Args),
 					import_db(Data),
@@ -203,6 +203,10 @@ main:-
 							(member(holds(Holds), Args); Holds = 1),
 							(member(tpw(TPW), Args); TPW = 2),
 							print_routes(Holds, TPW), halt
+						);
+						Report = transroutes -> (
+							(member(holds(Holds), Args); Holds = 20),
+							print_trans_routes(Holds), halt
 						);
 						Report = pairs -> print_pairs(), halt;
 						Report = mapped -> print_mapped(), halt;
@@ -286,9 +290,15 @@ main:-
 						'| note     : built from list of ports in ports.csv and recorded trades in      |\n',
 						'|          : trades.csv requires at least 2 matching trades and logs of        |\n',
 						'|          : corresponding ports                                               |\n',
-						'|          :                                                                   |\n',
 						'| options  : --holds <number>  calculates total profit for full holds.         |\n',
 						'| options  : --tpw   <number>  turns per warp (default 2)                      |\n',
+						'|------------------------------------------------------------------------------|\n',
+						'| routes   : print a list of trans-warp trades, with built in profit           |\n',
+						'|          : adjustment based on average fuel cost and number of reserved      |\n',
+						'|          : holds.                                                            |\n',
+						'| notes    : you should always specify your ship\'s holds with this report if   |\n',
+						'|          : you want useful results.                                          |\n',
+						'| options  : --holds <number>  calculates total profit for full holds.         |\n',
 						'+------------------------------------------------------------------------------+\n'
 					]),
 					halt

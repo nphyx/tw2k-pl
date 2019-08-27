@@ -57,7 +57,9 @@ unit_price(Id, Product, Value):-
 	Value is Price / Qty.
 
 % thanks StackOverflow
-average( List, Average ):- 
+average([], 0).
+average([A], A).
+average(List, Average):- 
     sum_list(List, Sum),
     length(List, Length),
     Length > 0, 
@@ -69,8 +71,8 @@ average_sale(Id, Product, Avg):-
 	findall(V, (trade(Id, s, Product, Qty, Price), V is Price / Qty), Vals),
 	average(Vals, Avg).
 
-% average of all sales of Product at port in Id.
-% average_sale(+Id, +Product, -Avg).
+% average of all buys of Product at port in Id.
+% average_offer(+Id, +Product, -Avg).
 average_offer(Id, Product, Avg):-
 	findall(V, (trade(Id, b, Product, Qty, Price), V is Price / Qty), Vals),
 	average(Vals, Avg).
@@ -78,7 +80,8 @@ average_offer(Id, Product, Avg):-
 % lists all the average sale values for a given product.
 % all_average_sales(+Product, -List<(Id, Average)>).
 all_average_sales(Product, List):-
-	findall((Id, Avg), (port_sells(Id, Product), average_sale(Id, Product, Avg)), List).
+	setof(Id, has_trade(Id, Product, s), Set),
+	setof((Id, Avg), (member(Id, Set), average_sale(Id, Product, Avg)), List).
 
 % finds the best average sale price of a product in any port
 % best_average_sale(+Product, -Id, -Price).
@@ -91,7 +94,8 @@ lowest_average_sale(Product, Id, Price):-
 % lists all the average offer values for a given product.
 % all_average_offers(+Product, -List<(Id, Average)>).
 all_average_offers(Product, List):-
-	findall((Id, Avg), (port_sells(Id, Product), average_offer(Id, Product, Avg)), List).
+	setof(Id, has_trade(Id, Product, b), Set),
+	setof((Id, Avg), (member(Id, Set), average_offer(Id, Product, Avg)), List).
 
 % finds the best average offer price of a product in any port
 % best_average_offer(+Product, -Id, -Price).
@@ -193,14 +197,6 @@ trade_route(A, B, ProductA, ProductB):-
 	not(A = B),
 	not(ProductA = ProductB).
 
-/*
-	trade_sanity(A, ProductA),
-	trade_sanity(B, ProductA),
-	trade_sanity(A, ProductB),
-	trade_sanity(B, ProductB).
-*/
-
-
 % finds trade routes - non-adjacent ports with matching buys/sells, and computes
 % profitability by turns per warp.
 % trade_route(+TPW, Routes<route>).
@@ -228,8 +224,41 @@ trade_routes2(TPW, [H|T], Answer):-
 % finds trade routes and sorts by ProfitPerWarp, descending.
 % trade_routes_sorted(+TPW, -Sorted<List<route>>).
 trade_routes_sorted(TPW, Sorted):-
-	trade_routes(TPW, Routes),
+	trade_routes(TPW, Routes), !,
 	sort(9, @>, Routes, Sorted).
+
+% finds trade routes - non-adjacent ports with matching buys/sells, and computes
+% profitability by turns per warp.
+% trade_route(+Holds, Routes<route>).
+trans_routes(Holds, Routes):- 
+	all_average_sales(fuel, AllSales),
+	setof((A, B, ProductA, ProductB), (port_sells(B, fuel), trade_route(A, B, ProductA, ProductB)), Todo),
+	findall(Price, member((_, Price), AllSales), AllPrices),
+	average(AllPrices, FuelPrice),
+	trans_routes2(FuelPrice, Holds, Todo, Routes).
+
+trans_routes2(_, _, [], []).
+trans_routes2(FuelPrice, Holds, [H|T], Answer):-
+	(A, B, ProductA, ProductB) = H,
+	average_sale(A, ProductA, UnitA1),
+	average_offer(B, ProductA, UnitB1),
+	average_sale(B, ProductB, UnitA2),
+	average_offer(A, ProductB, UnitB2),
+	shortest_route(A, B, L),
+	RoundTrip is L * 2,
+	FuelCost is RoundTrip * 3,
+	NetHolds is Holds - FuelCost,
+	Profit is ((UnitA1 - UnitB1) * NetHolds) + ((UnitA2 - UnitB2) * (NetHolds / 2)) - (FuelCost * FuelPrice),
+	ProfitPerTurn is Profit / 3,
+	Pair = troute(A, ProductA, B, ProductB, Profit, ProfitPerTurn, FuelCost),
+	trans_routes2(FuelPrice, Holds, T, Partial),
+	append(Partial, [Pair], Answer).
+
+% finds trade routes and sorts by ProfitPerWarp, descending.
+% trade_routes_sorted(+TPW, -Sorted<List<route>>).
+trans_routes_sorted(Holds, Sorted):-
+	trans_routes(Holds, Routes), !,
+	sort(6, @>, Routes, Sorted).
 
 % find major space lanes (routes between class 0 / class 9 ports).
 % space_lane(-Lane).
@@ -284,8 +313,8 @@ has_trade(Id):- trade(Id, _, _, _, _).
 has_trade(Id, Product):- trade(Id, _, Product, _, _).
 
 % true if a sector has a port with at least one recorded trade of Type for product.
-% has_trade(+Id, +Product, +Type<b/s>).
-has_trade(Id, Product, Type):- trade(Id, Type, Product, _, _).
+% has_trade(+Id, +Product, +BorS<b/s>).
+has_trade(Id, Product, BorS):- trade(Id, BorS, Product, _, _).
 
 % true if sectors A and B are adjacent and link to each other.
 % bidirectional(+A<SectorId>, +B<SectorId>).

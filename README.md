@@ -3,10 +3,14 @@ TW2K Prolog DB
 A program that reads CSV files of data dumped from TradeWars2002.  It generates reports about
 good trade pairs, trade routes, and does all kinds of other nifty logical reasoning stuff.
 
+[example trade pair report](example_output/report_pairs.md)
+[example trade route report](example_output/report_routes.md)
+[example trans-warp trade report](example_output/report_transroutes.md)
+
 It also makes fancy maps, like these:
 
-<img style="display:inline;" src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_maps/example_map.svg?sanitize=true" width="40%" height="auto">
-<img style="display:inline;" src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_maps/example_secret_map.svg?sanitize=true" width="40%" height="auto">
+<img style="display:inline;" src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_output/example_map.svg?sanitize=true" width="40%" height="auto">
+<img style="display:inline;" src="https://raw.githubusercontent.com/nphyx/tw2k-pl/master/example_output/example_secret_map.svg?sanitize=true" width="40%" height="auto">
 
 (second one has all its sector info hidden so I don't give up too much of my own intel)
 

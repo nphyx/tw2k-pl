@@ -8,20 +8,20 @@ print_route_row(R, Holds):-
 	ProfitPerTurn is ProfitPerTurnUnit * Holds,
 	ProfitPerWarp is ProfitPerWarpUnit * Holds,
 	format(
-		'| ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~1f~7+~t~| | ~|~w~5+~t~| | ~|~1f~7+~t~| | ~|~w~5+~t~| | ~|~1f~7+~t~| |\n',
+		'| ~|~w~3+~t~| - ~|~w~9+~t~| | ~|~w~3+~t~| - ~|~w~9+~t~| | ~|~1f~6+~t~| | ~|~w~3+~t~| | ~|~1f~6+~t~| | ~|~w~3+~t~| | ~|~1f~6+~t~| |\n',
 		[A, ProductA, B, ProductB, Profit, RoundTrip, ProfitPerWarp, Turns, ProfitPerTurn]
 	).
 
-print_route_foot():- writef('=========================================================================================\n').
+print_route_foot():- writef('============================================================================\n').
 
 print_route_head(Holds):-
 	writef('\nKnown Trade Routes (%w holds)\n', [Holds]),
 	print_route_foot(),
 	format(
-		'| ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~7+~t~| | ~|~w~5+~t~| | ~|~w~7+~t~| | ~|~w~5+~t~| | ~|~w~7+~t~| |\n',
-		['A', 'ProductA', 'B', 'ProductB', 'Profit', 'Warps', 'PerWarp', 'Turns', 'PerTurn']
+		'| ~|~w~3+~t~| - ~|~w~9+~t~| | ~|~w~3+~t~| - ~|~w~9+~t~| | ~|~w~6+~t~| | ~|~w~3+~t~| | ~|~w~6+~t~| | ~|~w~3+~t~| | ~|~w~6+~t~| |\n',
+		['A', 'ProductA', 'B', 'ProductB', 'Profit', 'Wrp', 'PerWrp', 'Trn', 'PerTrn']
 	),
-	writef('|--------------------+--------------------+---------+-------+---------+-------+---------|\n').
+	writef('|-----------------+-----------------+--------+-----+--------+-----+--------|\n').
 
 % prints all routes between two ports with paired buys/sells, sorted by profit per turn,
 % profit multiplied by Holds.
@@ -38,6 +38,32 @@ print_routes(Holds):- print_routes(Holds, 2).
 % print_routes().
 print_routes():- print_routes(1).
 
+print_trans_foot():- writef('=======================================================================\n').
+
+print_trans_head(Holds):-
+	writef('\nTrans-Warp Routes (%w holds)\n', [Holds]),
+	print_trans_foot(),
+	format(
+		'| ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~7+~t~| | ~|~w~7+~t~| | ~|~w~5+~t~| |\n',
+		['A', 'ProductA', 'B', 'ProductB', 'Profit', 'PerTurn', 'Fuel']
+	),
+	writef('|--------------------+--------------------+---------+---------+-------+\n').
+
+print_trans_row(R):- 
+	troute(A, ProductA, B, ProductB, Profit, ProfitPerTurn, Fuel) = R,
+	format(
+		'| ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~1f~7+~t~| | ~|~1f~7+~t~| | ~|~w~5+~t~| |\n',
+		[A, ProductA, B, ProductB, Profit, ProfitPerTurn, Fuel]
+	).
+
+% prints trade routes using transwarp jumps, computed by number of holds.
+% print_trans_routes(+Holds).
+print_trans_routes(Holds):-
+	trans_routes_sorted(Holds, Sorted),
+	print_trans_head(Holds),
+	forall(member(P, Sorted), print_trans_row(P)),
+	print_trans_foot().
+
 pair_row_fmt(F):- F = '| ~|~w~5+~t~| | ~|~w~5+~t~| | ~|~w~11+~t~| | ~|~w~11+~t~| |\n'.
 
 print_pairs_row(R):- 
@@ -50,7 +76,7 @@ print_pairs_head():-
 	writef('\nKnown Trade Pairs\n'),
 	print_pairs_foot(),
 	format(F, ['A', 'B', 'ProductA', 'ProductB']),
-	writef('|-------|-------|-------------|-------------|\n').
+	writef('|-------+-------+-------------+-------------|\n').
 
 print_pairs_foot():-
 	writef('=============================================\n').
