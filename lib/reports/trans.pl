@@ -9,7 +9,7 @@ print_trans_head(Holds):-
 		'| ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~4+~t~| - ~|~w~11+~t~| | ~|~w~7+~t~| | ~|~w~7+~t~| | ~|~w~5+~t~| |\n',
 		['A', 'ProductA', 'B', 'ProductB', 'Profit', 'PerTurn', 'Fuel']
 	),
-	writef('|--------------------+--------------------+---------+---------+-------+\n').
+	writef('|--------------------|--------------------|---------|---------|-------|\n').
 
 print_trans_row(R):- 
 	troute(A, ProductA, B, ProductB, Profit, ProfitPerTurn, Fuel) = R,
