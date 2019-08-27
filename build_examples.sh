@@ -4,10 +4,10 @@
 rm example_output/example_secret_map.dot
 
 echo "Building example pairs report..."
- ./tw2k -r pairs | tail -n +6 | awk '{ gsub(/[[:digit:]]/, "0", $0); print }' > example_output/report_pairs.md
+ ./tw2k -r pairs | tail -n +6 | head -n -1 | awk '{ gsub(/[[:digit:]]/, "0", $0); print }' > example_output/report_pairs.md
 
 echo "Building example route report..."
-./tw2k -r routes --holds 20 | tail -n +6 | awk 'BEGIN { FS="|" }
+./tw2k -r routes --holds 20 | tail -n +6 | head -n -1 | awk 'BEGIN { FS="|" }
 $2 ~ /^ [[:digit:]|[:alpha:]]/{
 	gsub(/[[:digit:]]/, "0", $2);
 	gsub(/[[:digit:]]/, "0", $3);
@@ -17,7 +17,7 @@ $2 ~ /^\-/ { print $0 }
 $2 !~ /^( [[:digit:]|[:alpha:]]|\-)/{ print $1 }' > example_output/report_routes.md
 
 echo "Building example transroute report..."
-./tw2k -r transroutes --holds 85 | tail -n +6 | awk 'BEGIN { FS="|" }
+./tw2k -r transroutes --holds 85 | tail -n +6 | head -n -1 | awk 'BEGIN { FS="|" }
 $2 ~ /^ [[:digit:]|[:alpha:]]/{
 	gsub(/[[:digit:]]/, "0", $2);
 	gsub(/[[:digit:]]/, "0", $3);
