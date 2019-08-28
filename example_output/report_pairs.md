@@ -16,4 +16,5 @@ Known Trade Pairs
 | 000   | 000   | organics    | fuel        |
 | 000   | 000   | organics    | fuel        |
 | 000   | 000   | equipment   | fuel        |
+| 000   | 000   | equipment   | fuel        |
 | 000   | 000   | fuel        | organics    |
