@@ -8,7 +8,7 @@ row_to_list(Row, List):-
 
 import_planets(DataDir):-
 	swritef(Dir, '%w/planets.csv', [DataDir]),
-	csv_read_file(Dir, Data, [skip_header('#'), functor(planet), row_arity(5), strip(true)]),
+	csv_read_file(Dir, Data, [skip_header('#'), functor(planet), row_arity(10), strip(true)]),
 	length(Data, Len),
 	writef("::: %w planets", [Len]), 
 	maplist(assert, Data).

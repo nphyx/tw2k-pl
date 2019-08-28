@@ -1,6 +1,6 @@
-:- module(dynamics, [planet/5, port/6, trade/5, sector/2, region/2, pair_trade/4, pair_route/4]).
-% planet(-SectorId, -PlanetClass, -CitadelLevel, -PlanetName, -PlanetOwner).
-:-dynamic planet/5.
+:- module(dynamics, [planet/10, port/6, trade/5, sector/2, region/2, pair_trade/4, pair_route/4]).
+% planet(-SectorId, -PlanetId, -PlanetClass, -PlanetName, -PlanetOwner, -PlanetCreator, -CitadelLevel, -RLevel, -Fighters, -QCannonLevel).
+:-dynamic planet/10.
 
 % port(-Sector, -Name, -Class, -fuel<buys/sells>, -organics<buys/sells>, -equipment<buys/sells>)
 :-dynamic port/6.

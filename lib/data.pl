@@ -3,6 +3,10 @@
 :- [util].
 :- [dijkstra].
 
+% map planet/10 to planet/5 (old format, laziness)
+% planet(-SectorId, -PlanetClass, -PlanetName, -PlanetLevel, -PlanetOwner).
+planet(A, B, C, D, E) :- planet(A, _, B, C, E, _, D, _, _, _).
+
 path(From,To,Dist) :- link_from_to(From,To), Dist is 1.
 :- export(path/3).
 
@@ -446,3 +450,4 @@ all_planets(Planets):-
 planets_in_sector_list(SectorList, Planets):-
 	(setof(planet(SectorId, Class, Level, Name, Owner), (member(SectorId, SectorList), planet(SectorId, Class, Level, Name, Owner)), Planets); Planets = []).
 :- export(planets_in_sector_list/2).
+
