@@ -1,7 +1,9 @@
+% utilities for examining data
 :- module(data, []).
+?-use_module(dijsktra).
 ?-use_module(dynamics).
 :- [util].
-:- [dijkstra].
+?-reexport(dijkstra).
 
 path(From,To,Dist) :- link_from_to(From,To), Dist is 1.
 :- export(path/3).
@@ -392,6 +394,12 @@ isolated(SectorId):-
 	(length(Links, 1); length(Links, 0)),
 	(sector(SectorId, Outbound), forall(member(Id, Outbound), mapped(Id))).
 :- export(isolated/1).
+
+% a sector is a tunnel if it only has two links.
+% tunnel(-SectorId).
+tunnel(SectorId):-
+	sector(SectorId, [_|[_]]).
+:- export(tunnel/1).
 
 % a sector is a pocket if it is connected only by unidirectional links in both directions,
 % and all its links are mapped.

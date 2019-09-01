@@ -7,6 +7,7 @@ BEGIN {
 	quantity = "F";
 	price = "F";
 	mode = "F";
+	in_cit = 0;
 }
 
 /^Sector [[:digit:]]+ has warps to sector/{
@@ -119,4 +120,26 @@ BEGIN {
 	mode = ""
 	quantity = ""
 	price = ""
+}
+
+/^\:[[:space:]]+$/{
+	in_cit = 1
+}
+
+/^: ENDINTERROG/{
+	in_cit = 0
+}
+
+/^([[:space:]]+[[:digit:]]+)+$/{
+	if(in_cit) {
+		old_ors = ORS
+		ORS = ""
+		printf("SECTOR_RECORD: %.3d, ", $1)
+		ORS = ", "
+		for (i = 2; i < NF; i++) {
+			print $i
+		}
+		ORS = olrd_ors
+		print $i"\n"
+	}
 }

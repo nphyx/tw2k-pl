@@ -43,26 +43,7 @@ BEGIN {
 		print "DEBUG PLANET SUMMARY LINE: "planet_class", '"last_planet_name"'"
 	}
 }
-#
-#	for(i=1;i <=NF;++i) {
-#		gsub(/^Planets[[:space:]]+:[[:space:]]+/, "", $i)
-#		# print $i
-#		gsub(/\(/,"", $i);
-#		# print $i
-#		gsub(/\)/,", unknown,", $i);
-#		# print $i
-#		# printf("PLANET_RECORD: %.3d, %s, unknown\n", sector, $i);
-#		last_planet_name = $i
-#		planet[sector, last_planet_name, "sector"] = sector
-#		planet[sector, last_planet_name, "number"] = $2
-#		planet[sector, last_planet_name, "name"] = last_planet_name
-#		planet[sector, last_planet_name, "citadel"] = $5
-#		planet[sector, last_planet_name, "rlevel"] = $6
-#		planet[sector, last_planet_name, "fighters"] = $6
-#		planet[sector, last_planet_name, "qcanlevel"] = $7
-#		planet[sector, last_planet_name, "class"] = $i
-#	}
-#}
+
 /^<Atmospheric maneuvering system/ {
 	in_registry = 1
 	print "DEBUG IN REGISTRY"
@@ -157,7 +138,7 @@ END {
 			cur_rlevel = planet[i][j]["rlevel"] ? planet[i][j]["rlevel"] : "unknown"
 			cur_fighters = planet[i][j]["fighters"] ? planet[i][j]["fighters"] : "unknown"
 			cur_qcanlevel = planet[i][j]["qcanlevel"] ? planet[i][j]["qcanlevel"] : "unknown"
-			cur_class = planet[i][j]["class"] ? planet[i][j]["class"] : "unknown"
+			cur_class = planet[i][j]["class"] ? tolower(planet[i][j]["class"]) : "unknown"
 			cur_owner = planet[i][j]["owner"] ? planet[i][j]["owner"] : "unknown"
 			cur_creator = planet[i][j]["creator"] ? planet[i][j]["creator"] : "unknown"
 			printf("PLANET_RECORD: %.3d, %.3d, ", cur_sector, cur_number)
