@@ -191,7 +191,7 @@ main:-
 		( % report mode
 			(member(report(Report), Args), not(var(Report))),
 			(
-				Supported = [pairs, routes, mapped, unmapped, boundary, transroutes],
+				Supported = [pairs, routes, mapped, unmapped, unknown, boundary, transroutes],
 				member(Report, Supported), (
 					member(data_dir(Data), Args),
 					import_db(Data),
@@ -209,7 +209,8 @@ main:-
 						Report = pairs -> print_pairs(), halt;
 						Report = mapped -> print_mapped(), halt;
 						Report = unmapped -> print_unmapped(), halt;
-						Report = boundary -> print_boundary(), halt
+						Report = boundary -> print_boundary(), halt;
+						Report = unknown -> print_unknown(), halt
 					)
 				);
 				format('Unsupported report type ~w, try --help~n', [Report]), halt

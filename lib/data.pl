@@ -1,9 +1,8 @@
 % utilities for examining data
 :- module(data, []).
-?-use_module(dijsktra).
 ?-use_module(dynamics).
 :- [util].
-?-reexport(dijkstra).
+:- [dijkstra].
 
 path(From,To,Dist) :- link_from_to(From,To), Dist is 1.
 :- export(path/3).
