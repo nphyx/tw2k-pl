@@ -68,6 +68,7 @@ product_tag(Product, Tag):-
 % finds the background color for a sector in normal mode
 sector_color(Id, C):-
 	(not(mapped(Id)), C = "#111111");
+	(deep_isolated(Id), C = '#885533');
 	(isolated(Id), C = '#773333');
 	(tunnel(Id), C = "#227788");
 	(pocket(Id), C = "#228877");

@@ -396,6 +396,13 @@ isolated(SectorId):-
 	(sector(SectorId, Outbound), forall(member(Id, Outbound), mapped(Id))).
 :- export(isolated/1).
 
+% a sector is deep isolated if it is isolated and the incoming link is a tunnel.
+deep_isolated(SectorId):-
+	isolated(SectorId),
+	sector(SectorId, [Incoming]),
+	tunnel(Incoming).
+:- export(deep_isolated/1).
+
 % a sector is a tunnel if it only has two links.
 % tunnel(-SectorId).
 tunnel(SectorId):-
