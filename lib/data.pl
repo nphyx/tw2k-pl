@@ -301,7 +301,8 @@ trans_routes_sorted(Holds, Sorted):-
 space_lane(Lane):-
 	(port_class(A, 0); port_class(A, 9)),
 	(port_class(B, 0); port_class(B, 9)),
-	go_path(A, B, Lane, _).
+	not((A = B)),
+	go_path(A, B, Lane, _), !.
 :- export(space_lane/1).
 
 % list of all space lanes
@@ -424,10 +425,68 @@ region_of(SectorId, Region):-
 	Region = unknown.
 :- export(region_of/2).
 
+all_regions(Regions):-
+	findall(region(Name, Sectors), region(Name, Sectors), Regions).
+:- export(all_regions/1).
+
+is_named_region(Name):-
+	not((Name = 'unknown')),
+	not((Name = 'uncharted space')).
+:- export(is_named_region/1).
+
+in_named_region(SectorId):-
+	region_of(SectorId, Name),
+	is_named_region(Name).
+
+in_region(SectorId, Name):-
+	region(Name, Links), member(SectorId, Links).
+:- export(in_region/2).
+
+claim_sectors(Regions, Visited, Claims):-
+	claim_sectors2(Regions, [], Visited, Claims), !.
+:- export(claim_sectors/3).
+
+claim_filter(Name, Id):-
+	(in_region(Id, Name); not(in_named_region(Id))).
+:- export(claim_filter/2).
+
+claim_sectors2([], BeginVisited, BeginVisited, []).
+claim_sectors2([H|T], BeginVisited, EndVisited, Claims):-
+	(
+		region(Name, Sectors) = H,
+		is_named_region(Name),
+		findall(SectorLinks, (
+			member(S, Sectors),
+			sector(S, SectorLinks)
+		),
+		SectorLinkSet),
+		flatten(SectorLinkSet, Flat),
+		include(claim_filter(Name), Flat, Filtered),
+		subtract(Filtered, BeginVisited, Remaining),
+		dedupe(Remaining, Deduped),
+		ThisClaim = region_claim(Name, Deduped),
+		flatten([BeginVisited, Deduped], NextTmp),
+		dedupe(NextTmp, NextVisited),
+		claim_sectors2(T, NextVisited, EndVisited, InnerClaims),
+		Claims = [ThisClaim|InnerClaims]
+	);
+	(
+		NextVisited  = BeginVisited,
+		claim_sectors2(T, NextVisited, EndVisited, Claims)
+	).
+
 known_sector(Id):- 
 	sector(Id, _);
 	sector(_, List), member(Id, List).
 :- export(known_sector/1).
+
+all_uncharted_space_sectors(List):-
+	region('uncharted space', List), !; List = [].
+:- export(all_uncharted_space_sectors/1).
+
+all_unknown_region_sectors(List):-
+	setof(Id, not(in_region(Id, _)), List), !; List = [].
+:- export(all_unknown_region_sectors/1).
 
 all_known_sectors(List):-
 	setof(Id, known_sector(Id), List).

@@ -12,14 +12,19 @@ planet(A, B, C, D, E) :- planet(A, _, B, D, E, _, C, _, _, _).
 % trade(-Sector, -Mode<buys/sells>, -Product<fuel/organics/equipment>, -Quantity, -Price)
 :-dynamic trade/5.
 
-% sector(-Sector, List[-connected_sector, ...]).
+% sector(-Sector, List[Sector, ...]).
 :-dynamic sector/2.
 
-% region(-Name, -List[-sector, ...]).
+% region(-Name, -List[Sector, ...]).
 :-dynamic region/2.
+
+% a region and a list of all the sectors it's claimed for its local cluster
+% region_claim(-Name, -List[Sector, ...]).
+:- dynamic(region_claim/2).
 
 % pair_trade(-SectorA, -SectorB, -ProductA, -ProductB).
 :-dynamic pair_trade/4.
 
 % pair_route(-SectorA, -SectorB, -ProductA, -ProductB).
 :-dynamic pair_route/4.
+
