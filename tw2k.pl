@@ -4,6 +4,10 @@
 ?- use_module(lib/reports/mod).
 ?- use_module(lib/storage).
 ?- use_module(lib/util).
+?- use_module(lib/data).
+?- use_module(lib/dynamics).
+:- reexport(lib/data).
+:- reexport(lib/dynamics).
 
 main:-
 	OptSpec = [

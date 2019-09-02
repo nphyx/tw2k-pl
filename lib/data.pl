@@ -337,7 +337,7 @@ mapped(Id):- sector(Id, _).
 uncharted(Id):- not(mapped(Id)).
 :- export(uncharted/1).
 
-% List of all sectors within Warps distance from Id.
+% List of all sectors within Warps distance from Id, including incoming unidirectionals.
 % within_warps(+Id, +Warps, -List<SectorId>).
 within_warps(_, 0, []).
 within_warps(Id, 1, List):- sector(Id, List).
@@ -346,7 +346,8 @@ within_warps(Id, Warps, List):-
 	NextWarps is Warps - 1,
 	sector(Id, Links),
 	findall(Within, (member(LinkId, Links), within_warps(LinkId, NextWarps, Within)), Withins),
-	flatten([Links,Withins], Flat),
+	findall(Inc, unidirectional(Inc, Id), Incoming),
+	flatten([Links,Incoming,Withins], Flat),
 	setof(L, member(L, Flat), List).
 :- export(within_warps/3).
 
@@ -398,7 +399,14 @@ isolated(SectorId):-
 % a sector is a tunnel if it only has two links.
 % tunnel(-SectorId).
 tunnel(SectorId):-
-	sector(SectorId, [_|[_]]).
+	findall(Inc, link_from_to(Inc, SectorId), Incoming),
+	sector(SectorId, Links),
+	flatten([Incoming, Links], Flat),
+	sort(Flat, Sorted),
+	forall(member(Id, Sorted), mapped(Id)),
+	length(Sorted, Len),
+	Len < 3.
+
 :- export(tunnel/1).
 
 % a sector is a pocket if it is connected only by unidirectional links in both directions,
