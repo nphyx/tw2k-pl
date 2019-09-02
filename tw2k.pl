@@ -148,6 +148,26 @@ main:-
 						writef('Done.\n\n'),
 						halt
 					);
+					Map = regional -> (
+						import_db(Data),
+						(
+							member(output(Of), Args), not(var(Of));
+							Of = 'regional_clusters.dot'
+						),
+						(
+							member(image(If), Args), not(var(If));
+							If = 'regional_clusters.svg'
+						),
+						swritef(Og, '%w/%w', [MapDir, Of]), atom_string(O, Og),
+						swritef(Ig, '%w/%w', [MapDir, If]), atom_string(I, Ig),
+						swritef(Cmd, 'dot -Tsvg -K%w -o %w %w', [GvCmd, I, O]),
+						writef('\n-=-=-= Generating Clustered Graph ::: %w =-=-=-\n', [O]),
+						map_regional(O, Labels, Colors),
+						writef('Done.\n\n-=-=-=  Generating Clustered Map  ::: %w =-=-=-\n', [I]),
+						shell(Cmd),
+						writef('Done.\n\n'),
+						halt
+					);
 					(
 						writef('unsupported map type %w\n', [Map]), halt
 					)
