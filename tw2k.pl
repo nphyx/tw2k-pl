@@ -206,6 +206,17 @@ main:-
 						Graph = global, map_universe(O, Labels, Colors),
 						halt
 					);
+					Graph = regional -> (
+						import_db(Data),
+						(
+							member(output(Of), Args), not(var(Of));
+							Of = 'regional_clusters.dot'
+						),
+						swritef(Og, '%w/%w', [MapDir, Of]), atom_string(O, Og),
+						writef('\n-=-=-= Generating Clustered Graph ::: %w =-=-=-\n', [O]),
+						Graph = global, map_regional(O, Labels, Colors),
+						halt
+					);
 					(
 						writef('unsupported graph type %w\n', [Graph]), halt
 					)
@@ -263,9 +274,8 @@ main:-
 						'+------------------------------------------------------------------------------+\n',
 						'| global  : render a map of every sector in the database                       |\n',
 						'|         : default output is maps/sectors.dot, maps/sectors.svg               |\n',
-						'| example : to create a map of sector 1 (Sol system) and surroundings within 3 |\n',
-						'|         : warps:                                                             |\n',
-						'|         : tw2k --map local -O 1 -H 3                                         |\n',
+						'| example : to create a global map named "universe.svg":                       |\n',
+						'|         : tw2k --map global -i universe.svg                                  |\n',
 						'|------------------------------------------------------------------------------|\n',
 						'| local   : only render sectors within a number of warps of an origin sector   |\n',
 						'|         : default output is maps/<origin>_<warps>.dot,                       |\n',
@@ -274,6 +284,13 @@ main:-
 						'|         : tw2k --map local -O 1 -H 3                                         |\n',
 						'| options : --origin   <int>       origin sector ID to start with (default 1)  |\n',
 						'|         : --warps     <int>      max warps from origin (default 3)           |\n',
+						'|------------------------------------------------------------------------------|\n',
+						'| regional: experimental mapping that attempts to cluster sectors by region    |\n',
+						'|         : (doesn\'t really work right yet)                                   |\n',
+						'|         : default output is maps/regional_clusters.dot,                      |\n',
+						'|         :                   maps/regional_clusters.svg                       |\n',
+						'| example : to create a global map named "regions.svg":                        |\n',
+						'|         : tw2k --map regional -i regions.svg                                 |\n',
 						'+------------------------------------------------------------------------------+\n',
 						'\n',
 						'                -=-=-=-= Options for all Maps & Graphs =-=-=-=-                 \n',
@@ -301,7 +318,7 @@ main:-
 						'| boundary : list all sectors adjacent to a mapped sector, but themselves      |\n',
 						'|          : unmapped                                                          |\n',
 						'|------------------------------------------------------------------------------|\n',
-						'| boundary : list all completely unknown sectors                               |\n',
+						'| unknown  : list all completely unknown sectors                               |\n',
 						'|------------------------------------------------------------------------------|\n',
 						'| pairs    : print a list of known trade pairs - adjacent ports with matched   |\n', 
 						'|          : trades                                                            |\n',
